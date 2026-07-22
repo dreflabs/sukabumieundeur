@@ -22,7 +22,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 **Feature List** adalah penjabaran detail dari Kebutuhan Fungsional yang telah disinggung pada dokumen `03-system-requirements.md`. Dokumen ini merincikan setiap blok fungsional pada masing-masing halaman website, mulai dari antarmuka publik hingga halaman manajemen CMS.
 
@@ -30,7 +30,7 @@ Platform Sukabumi Eundeur memiliki cakupan fitur yang luas layaknya ekosistem fe
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Memberikan gambaran spesifik mengenai setiap fitur yang harus diimplementasikan pada masing-masing modul/halaman.
 2. Menjadi acuan (*source of truth*) bagi tim UI/UX dalam merancang antarmuka.
@@ -52,7 +52,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Peta Fitur Utama
+## 🔄 User Flow
+
+### Alur Processes
+ Peta Fitur Utama
 
 ```mermaid
 flowchart LR
@@ -201,11 +204,62 @@ Halaman *backend* yang diakses khusus oleh pengelola (Penyelenggara/Tim Editoria
 - **History Management:** Pengelolaan data untuk arsip *History Event*.
 - **Users & Roles:** Manajemen akun pengguna (Admin, Editor, Member), RBAC (*Role-Based Access Control*), dan *Permissions*.
 - **SEO & Metadata:** Pengaturan global SEO, robots.txt, schema, dan OpenGraph.
-- **Media Library:** Penyimpanan aset gambar/dokumen terpusat (terhubung ke Supabase Storage).
+- **Media Library:** Penyimpanan aset gambar/dokumen terpusat (terhubung ke MinIO / Local VPS Storage).
 - **Settings:** Konfigurasi web (Logo, kontak, URL sosmed, kebijakan platform).
 - **Analytics (Internal):** Laporan mendetail mengenai perilaku pengguna, konversi, dan performa event.
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

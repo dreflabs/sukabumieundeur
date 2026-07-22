@@ -69,7 +69,7 @@ Platform Sukabumi Eundeur memerlukan pengujian berlapis untuk menjamin stabilita
 
 | ID | Jenis Pengujian | Perkakas | Target Cakupan |
 |---|---|---|---|
-| **FR-TST-01** | Unit & Integration Test | Vitest | Zod Schemas, Helper functions, Formatter, Supabase RPC mocks. |
+| **FR-TST-01** | Unit & Integration Test | Vitest | Zod Schemas, Helper functions, Formatter, PostgreSQL (Self-Hosted VPS) RPC mocks. |
 | **FR-TST-02** | End-to-End (E2E) Test | Playwright | Full User Journey (Landing -> Cart -> Checkout -> Gateway -> E-Ticket). |
 | **FR-TST-03** | Load & Performance Test | k6 | Endpoint `rpc_reserve_tickets` & `rpc_reserve_merchandise`. |
 | **FR-TST-04** | Security Penetration | OWASP ZAP | Validasi XSS, SQLi, CSRF, RLS Bypassing. |
@@ -111,7 +111,7 @@ flowchart LR
     subgraph Target_Codebase
         Actions[Server Actions]
         Components[React Components]
-        DB_Mock[(Supabase Local Container)]
+        DB_Mock[(PostgreSQL (Self-Hosted VPS) Local Container)]
     end
 
     Vitest --> Actions
@@ -131,7 +131,7 @@ flowchart LR
 
 ## ⚠️ Risks
 
-- **Mocking Drift**: Risko mock DB di unit test berbeda perilakunya dengan Supabase PostgreSQL produksi.
+- **Mocking Drift**: Risko mock DB di unit test berbeda perilakunya dengan PostgreSQL (Self-Hosted VPS) PostgreSQL produksi.
 - **Timeout Flakiness**: E2E test gagal hanya karena koneksi internet lambat saat mengunduh aset font/gambar.
 
 ---
@@ -295,7 +295,7 @@ Aturan minimum coverage wajib dikonfigurasi di CI/CD:
 ## 🚀 Future Improvements
 
 - **Visual Regression Testing**: Menggunakan Percy / Applitools untuk mendeteksi perubahan tampilan CSS pixel-by-pixel secara otomatis.
-- **Chaos Engineering**: Mensimulasikan matinya basis data Supabase secara tiba-tiba untuk menguji ketahanan halaman error Next.js `error.tsx`.
+- **Chaos Engineering**: Mensimulasikan matinya basis data PostgreSQL (Self-Hosted VPS) secara tiba-tiba untuk menguji ketahanan halaman error Next.js `error.tsx`.
 
 ---
 

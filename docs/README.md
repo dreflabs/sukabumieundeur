@@ -95,9 +95,9 @@ Sukabumi Eundeur mengadaptasi pola-pola tersebut dengan konteks lokal, budaya, d
 | UI Library           | **React 19**                                     |
 | Bahasa Pemrograman   | **TypeScript**                                   |
 | Styling              | **Tailwind CSS v4**                              |
-| Backend as a Service | **Supabase** (Auth, Database, Storage, Realtime) |
+| Backend as a Service | **PostgreSQL (Self-Hosted VPS)** (Auth, Database, Storage, Realtime) |
 | Database             | **PostgreSQL**                                   |
-| File Storage         | **Supabase Storage**                             |
+| File Storage         | **MinIO / Local VPS Storage**                             |
 | Version Control      | **GitHub**                                       |
 | Hosting/Deployment   | **VPS (Self-managed)**                           |
 
@@ -115,7 +115,7 @@ docs/
 ├── 02-business-requirements.md    → Kebutuhan bisnis & tujuan strategis
 ├── 03-system-requirements.md      → Kebutuhan sistem & arsitektur teknis
 ├── 04-feature-list.md             → Daftar lengkap fitur platform
-├─�├── 07-information-architecture.md → Arsitektur informasi platform
+├─├── 07-information-architecture.md → Arsitektur informasi platform
 ├── 08-page-structure.md           → Struktur halaman & layout
 ├── 08-b-design-system.md         → Design system & UI component specification
 ├── 09-database-planning.md        → Perencanaan entitas database

@@ -108,7 +108,7 @@ sequenceDiagram
     actor User
     participant App as Next.js Server Action
     participant Shipping as API Logistik (RajaOngkir)
-    participant DB as Supabase DB
+    participant DB as PostgreSQL (Self-Hosted VPS)
     participant PG as Payment Gateway
 
     User->>App: Request Checkout (Item IDs, Address)
@@ -126,7 +126,7 @@ sequenceDiagram
 ## 🔗 Dependencies
 
 - **RajaOngkir / Biteship API**: Layanan kalkulasi ongkir ekspedisi Indonesia.
-- **Supabase PostgreSQL**: Penyimpanan stok & transaksi order.
+- **PostgreSQL (Self-Hosted VPS) PostgreSQL**: Penyimpanan stok & transaksi order.
 
 ---
 

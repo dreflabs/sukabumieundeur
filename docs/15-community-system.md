@@ -22,13 +22,13 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Sukabumi Eundeur bukanlah sekadar aplikasi transaksional penjual tiket. Visi besarnya adalah menjadi "Rumah Digital" bagi skena musik dan kreatif lokal. Modul **Community System** dirancang untuk menampung diskusi organik, berbagi foto gig lokal, dan sarana berkumpul *online* sebelum dan sesudah festival utama berlangsung.
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Meningkatkan *engagement* dan retensi pengguna di luar masa perilisan tiket (agar aplikasi tidak "mati suri" setelah event selesai).
 2. Memfasilitasi musisi lokal untuk berinteraksi langsung dengan penggemarnya (*fanbase*).
@@ -50,7 +50,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Interaksi Pengguna di Forum
+## 🔄 User Flow
+
+### Alur Processes
+ Interaksi Pengguna di Forum
 
 1. **Membaca:** Pengguna anonim (Guest) dapat membaca *thread* diskusi yang bersifat publik.
 2. **Autentikasi:** Untuk membuat Topik (Thread) atau membalas (Reply), *user* wajib login dan telah melakukan verifikasi email.
@@ -69,7 +72,7 @@ flowchart TD
     B -->|Sudah| D[Form Pembuatan Topik]
     D -->|Submit| E{Cek Kata Kasar}
     E -->|Gagal| F[Tolak dengan Pesan Error]
-    E -->|Lolos| G[(Simpan di Supabase)]
+    E -->|Lolos| G[(Simpan di PostgreSQL (Self-Hosted VPS))]
     G --> H[Topik Tayang di Forum]
     
     U2[Pengguna Lain] -->|Melihat Topik| H
@@ -107,6 +110,82 @@ Setiap *user* terdaftar memiliki Halaman Profil Publik yang dapat dilihat orang 
 
 ---
 
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+
+### Sequence Diagram — Forum Topic Creation & Moderation
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Member as Komunitas / User
+    participant App as Web Frontend
+    participant Auth as JWT & Self-Hosted Auth Handler
+    participant DB as PostgreSQL DB
+    actor Mod as Moderator / Admin
+
+    Member->>App: Buat Topik Diskusi Baru
+    App->>Auth: Verifikasi JWT Token & Reputation Score
+    Auth-->>App: Token Valid
+    App->>DB: INSERT INTO forum_topics (title, category, content)
+    DB-->>App: Topik Terbuat
+    
+    Note over DB, Mod: Sistem Moderasi Konten
+    Mod->>App: Cek Topik Berpotensi Spam / SARA
+    Mod->>App: Klik 'Lock / Pin Topik'
+    App->>DB: UPDATE forum_topics SET is_locked = true / is_pinned = true
+    DB-->>App: Status Topik Perbarui
+```
+
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
+
 ## ✅ Checklist
 
 - [x] Struktur hierarki forum (Kategori -> Topik -> Balasan) terdefinisi.
@@ -130,8 +209,8 @@ Setiap *user* terdaftar memiliki Halaman Profil Publik yang dapat dilihat orang 
 
 ## 🏢 Enterprise Recommendation
 
-> **Serverless WebSockets untuk Forum (Supabase Realtime)**
-> Agar diskusi terasa hidup (*alive*), gunakan fitur *Realtime Subscriptions* dari Supabase pada halaman Detail Topik. Ketika ada pengguna lain yang sedang mengetik atau baru saja menekan tombol kirim balasan, balasan tersebut otomatis muncul di layar pengguna lain tanpa mereka harus me- *refresh* halaman (mirip Discord/Slack).
+> **Serverless WebSockets untuk Forum (PostgreSQL (Self-Hosted VPS) Realtime)**
+> Agar diskusi terasa hidup (*alive*), gunakan fitur *Realtime Subscriptions* dari PostgreSQL (Self-Hosted VPS) pada halaman Detail Topik. Ketika ada pengguna lain yang sedang mengetik atau baru saja menekan tombol kirim balasan, balasan tersebut otomatis muncul di layar pengguna lain tanpa mereka harus me- *refresh* halaman (mirip Discord/Slack).
 
 ---
 

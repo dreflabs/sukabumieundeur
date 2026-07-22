@@ -21,7 +21,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Platform Sukabumi Eundeur memiliki fungsi yang kompleks dan melibatkan banyak pihak mulai dari panitia (*organizer*), staf toko, jurnalis (*editor*), hingga penonton dan artis. Untuk menjaga keamanan dan integritas data, sistem menerapkan arsitektur **Role-Based Access Control (RBAC)**.
 
@@ -29,11 +29,11 @@ Dengan RBAC, setiap akun pengguna akan diberikan satu atau lebih "Peran" (*Role*
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Mendefinisikan hierarki dan tingkatan akses seluruh jenis pengguna.
 2. Mencegah akses tak sah (misalnya: *Editor* berita tidak boleh bisa mengubah data *Merchandise*).
-3. Menjadi acuan teknis bagi *Developer* dalam mengatur *Row Level Security* (RLS) di Supabase dan *middleware* otorisasi di Next.js.
+3. Menjadi acuan teknis bagi *Developer* dalam mengatur *Row Level Security* (RLS) di PostgreSQL (Self-Hosted VPS) dan *middleware* otorisasi di Next.js.
 4. Memberikan panduan jelas bagi Administrator dalam memberikan hak akses saat fase operasional.
 
 ---
@@ -51,7 +51,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Matriks Otorisasi
+## 🔄 User Flow
+
+### Alur Processes
+ Matriks Otorisasi
 
 Berikut adalah matriks sederhana (*CRUD: Create, Read, Update, Delete*) hak akses berdasarkan peran:
 
@@ -149,12 +152,89 @@ Untuk memastikan keamanan *data isolation*, setiap role dibatasi pada *domain* t
 
 ---
 
+
+
+
+## 🖥️ Matriks Tampilan Dashboard Berdasarkan User Role
+
+Setiap peran pengguna (*User Role*) memiliki tampilan halaman utama/dashboard khusus (*Role-Based Dashboard*) saat berhasil melakukan autentikasi:
+
+| User Role | Route Path Dashboard | Komponen Widget & Fitur Utama Dashboard | Akses Data (Scope) |
+| :--- | :--- | :--- | :--- |
+| **`SUPER_ADMIN`** | `/admin/dashboard` | • Scorecard Pendapatan Total & Pageviews<br>• Realtime Ticket War Monitor<br>• Audit Logs & System Health<br>• User Management & RBAC Matrix | Full System (All Tenant & Domain) |
+| **`MODULE_ADMIN`** | `/admin/[module]` | • Widget Spesifik Modul (misal: Store Manager melihat Order Pending & Resi)<br>• Content Editor & Media Library | Modul Terdaftar (Store/News/Forum) |
+| **`ORGANISER`** | `/organiser/dashboard` | • Event Performance & Ticket Sales Live Gauge<br>• Realtime QR Scanner Check-in Counter<br>• Attendee List Exporter (CSV/Excel) | Event Milik Organiser Terkait |
+| **`ARTIST`** | `/artist/dashboard` | • Profile Editor & Band Lineup Schedule<br>• History Performance Archive<br>• Media Gallery & Social Links Manager | Profile & Event Record Band Terkait |
+| **`MEMBER`** | `/dashboard` | • My Tickets (Tiket Aktif + Kode QR Check-in)<br>• My Orders (Status Pembelian Merch & Resi)<br>• Forum Reputation & Topik Diskusi Saya | Personal User Data Only |
+| **`GUEST`** | `/` (Public Portal) | • Public Landing Page, Ticket Purchase Portal, News, Store, & Community Forum | Public Read-Only Access |
+
+```mermaid
+flowchart TD
+    Login[User Auth Login] --> CheckRole{Check User Role}
+    CheckRole --> |SUPER_ADMIN| SA[/admin/dashboard - Super Admin Dashboard]
+    CheckRole --> |MODULE_ADMIN| MA[/admin/module - Module Admin Panel]
+    CheckRole --> |ORGANISER| OG[/organiser/dashboard - Organiser Portal]
+    CheckRole --> |ARTIST| AR[/artist/dashboard - Artist Hub]
+    CheckRole --> |MEMBER| MB[/dashboard - Member Portal]
+    CheckRole --> |GUEST| GT[/ - Public Landing Page]
+```
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
+
 ## ✅ Checklist
 
 - [x] Hierarki tingkat akses telah terdefinisi (Internal vs Eksternal).
 - [x] Pembagian tugas dan peran (SA, Event, Merch, Editor, Mod, Member, Guest) sudah tertulis jelas.
 - [x] Matriks *CRUD* tingkat tinggi selesai dibuat.
-- [ ] Memastikan model skema *Database* (Supabase) dapat memfasilitasi RBAC ini melalui *Row Level Security* (RLS).
+- [ ] Memastikan model skema *Database* (PostgreSQL (Self-Hosted VPS)) dapat memfasilitasi RBAC ini melalui *Row Level Security* (RLS).
 - [ ] Validasi alur persetujuan (*approval flow*) jika *Editor* memerlukan persetujuan sebelum *publish*.
 
 ---
@@ -170,7 +250,7 @@ Untuk memastikan keamanan *data isolation*, setiap role dibatasi pada *domain* t
 
 - **Principle of Least Privilege (PoLP):** Berikan hak akses minimal yang hanya diperlukan *user* untuk menyelesaikan tugasnya. Jangan berikan akses Super Admin ke semua staf panitia.
 - **Default Deny:** Pada implementasi sistem, semua aksi secara bawaan ditolak (*denied*) kecuali *role* pengguna secara eksplisit mengizinkannya.
-- **Role Hierarchy:** Buatlah struktur relasi (seperti Supabase *custom claims*) agar sistem mudah mengecek otoritas `isAdmin` atau `isEditor` di sisi *frontend* (UI/UX) maupun *backend* (API).
+- **Role Hierarchy:** Buatlah struktur relasi (seperti PostgreSQL (Self-Hosted VPS) *custom claims*) agar sistem mudah mengecek otoritas `isAdmin` atau `isEditor` di sisi *frontend* (UI/UX) maupun *backend* (API).
 
 ---
 

@@ -21,7 +21,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Pengguna modern memiliki toleransi waktu tunggu (*attention span*) yang sangat rendah. Website yang lambat (membutuhkan waktu lebih dari 3 detik untuk memuat) tidak hanya dibenci oleh pengunjung, tetapi juga dikenai penalti oleh Google (skor SEO anjlok). 
 
@@ -29,12 +29,12 @@ Kinerja website adalah fitur (*Performance is a feature*). Strategi ini memastik
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Mencapai *Largest Contentful Paint* (LCP) di bawah 2.5 detik untuk semua halaman publik.
 2. Mencegah *Layout Shift* (CLS) saat gambar atau *font* dimuat terlambat.
 3. Mengurangi ukuran bundel *JavaScript* agar *Time to Interactive* (TTI) cepat di perangkat *mobile* kelas menengah.
-4. Meminimalkan beban baca/tulis ke *database* Supabase melalui strategi *Caching*.
+4. Meminimalkan beban baca/tulis ke *database* PostgreSQL (Self-Hosted VPS) melalui strategi *Caching*.
 
 ---
 
@@ -48,7 +48,10 @@ Dokumen ini mencakup:
 
 ---
 
-## 🔄 Flow — Peta Pemuatan Halaman (Page Load)
+## 🔄 User Flow
+
+### Alur Processes
+ Peta Pemuatan Halaman (Page Load)
 
 ```mermaid
 flowchart LR
@@ -92,13 +95,64 @@ Menggunakan fitur bawaan **Next.js App Router**:
 ## 💾 Optimasi Database & Caching
 
 1. **Database Indexing:**
-   Kolom-kolom di Supabase PostgreSQL yang sering dijadikan parameter pencarian atau filter **wajib** diberi indeks (`CREATE INDEX`). Contoh: kolom `slug` pada tabel `Events`, `category` pada `News`, dan `user_id` pada `Orders`.
+   Kolom-kolom di PostgreSQL (Self-Hosted VPS) PostgreSQL yang sering dijadikan parameter pencarian atau filter **wajib** diberi indeks (`CREATE INDEX`). Contoh: kolom `slug` pada tabel `Events`, `category` pada `News`, dan `user_id` pada `Orders`.
 2. **Data Caching Layer (React / Next.js `unstable_cache`):**
-   Kueri ke Supabase untuk mendapatkan daftar wilayah, kategori, atau konfigurasi sistem yang tidak berubah harus dibungkus dengan metode *cache* Next.js, agar tidak membuat koneksi ke *database* berulang-ulang untuk *request* yang sama.
+   Kueri ke PostgreSQL (Self-Hosted VPS) untuk mendapatkan daftar wilayah, kategori, atau konfigurasi sistem yang tidak berubah harus dibungkus dengan metode *cache* Next.js, agar tidak membuat koneksi ke *database* berulang-ulang untuk *request* yang sama.
 3. **Connection Pooling:**
-   Jika trafik (*traffic*) sangat tinggi, aplikasi harus mengakses *database* melalui port *Connection Pooling* (seperti PgBouncer bawaan Supabase) alih-alih port TCP langsung, demi mencegah matinya *database* akibat kehabisan kuota koneksi (sering terjadi saat arsitektur *Serverless/Edge*).
+   Jika trafik (*traffic*) sangat tinggi, aplikasi harus mengakses *database* melalui port *Connection Pooling* (seperti PgBouncer bawaan PostgreSQL (Self-Hosted VPS)) alih-alih port TCP langsung, demi mencegah matinya *database* akibat kehabisan kuota koneksi (sering terjadi saat arsitektur *Serverless/Edge*).
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

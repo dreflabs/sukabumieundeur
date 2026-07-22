@@ -21,7 +21,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Seiring berjalannya waktu, sebuah festival akan memiliki nilai budaya (*cultural value*) dan histori yang kuat. Halaman **History** tidak sekadar memindahkan event ke tab "Past Events", melainkan menyajikan laman rangkuman (*Recap*) yang kaya akan visual, statistik, dan cerita sukses (*success story*) purna-acara. 
 
@@ -29,7 +29,7 @@ Modul ini juga krusial secara bisnis sebagai "Portofolio" untuk dipresentasikan 
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Menyediakan monumen digital untuk setiap penyelenggaraan acara Eundeur.
 2. Memisahkan data aktif (*Active Event*) dengan data mati (*Archived Event*) pada sistem *database* agar proses *query* operasional tetap cepat.
@@ -49,7 +49,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Proses Pengarsipan (Archiving)
+## 🔄 User Flow
+
+### Alur Processes
+ Proses Pengarsipan (Archiving)
 
 Proses mengubah sebuah Event menjadi History dilakukan secara manual oleh Super Admin melalui CMS ketika masa evaluasi pasca-event telah selesai.
 
@@ -103,6 +106,57 @@ Saat Admin menekan *"Archive"*, sistem akan **mengkopi teks mentah (Hardcode/Den
 
 ---
 
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
+
 ## ✅ Checklist
 
 - [x] Struktur visual halaman (Aftermovie, Statistik, Recap, Sponsor) terdefinisi.
@@ -114,7 +168,7 @@ Saat Admin menekan *"Archive"*, sistem akan **mengkopi teks mentah (Hardcode/Den
 
 ## 📝 Catatan
 
-- **Kapasitas Penyimpanan (Storage):** Galeri foto yang masuk ke halaman History harus dipilih (*curated*), maksimal 20-30 foto resolusi optimal. Sisanya dapat diunggah ke Google Drive eksternal atau Google Photos yang ditautkan, demi menghemat *bandwidth* Supabase Storage.
+- **Kapasitas Penyimpanan (Storage):** Galeri foto yang masuk ke halaman History harus dipilih (*curated*), maksimal 20-30 foto resolusi optimal. Sisanya dapat diunggah ke Google Drive eksternal atau Google Photos yang ditautkan, demi menghemat *bandwidth* MinIO / Local VPS Storage.
 
 ---
 

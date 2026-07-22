@@ -23,7 +23,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Sebagai platform informasi event dan portal berita, **keterlihatan (SEO)** adalah harga mati. Jika seseorang mengetik "Festival Musik di Sukabumi" di Google dan situs Eundeur tidak muncul di halaman pertama, platform telah kehilangan potensi konversi pembeli tiket organik.
 
@@ -31,7 +31,7 @@ Selain SEO konvensional (untuk Google), strategi *OpenGraph* (untuk sosial media
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Mencapai peringkat atas (Halaman 1) mesin pencari untuk kata kunci (*keywords*) relevan terkait skena musik Sukabumi.
 2. Memastikan setiap pembagian tautan (*link sharing*) memunculkan visual *preview* yang memikat, bukan tautan teks mentah.
@@ -53,7 +53,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Peta Perayapan Mesin Pencari
+## 🔄 User Flow
+
+### Alur Processes
+ Peta Perayapan Mesin Pencari
 
 ```mermaid
 flowchart LR
@@ -120,6 +123,57 @@ SEO sangat bergantung pada performa (skor *Core Web Vitals*).
   - `Disallow: /account/*` (Larang akses area dasbor pribadi).
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

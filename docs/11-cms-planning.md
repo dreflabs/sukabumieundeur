@@ -22,15 +22,15 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
-**Super Admin CMS** adalah portal internal terpusat (*back-office*) yang digunakan oleh penyelenggara, editor, dan pengelola platform untuk menambah, mengubah, atau menghapus data tanpa perlu melakukan perubahan langsung ke dalam *database* (Supabase) atau *codebase*. 
+**Super Admin CMS** adalah portal internal terpusat (*back-office*) yang digunakan oleh penyelenggara, editor, dan pengelola platform untuk menambah, mengubah, atau menghapus data tanpa perlu melakukan perubahan langsung ke dalam *database* (PostgreSQL (Self-Hosted VPS)) atau *codebase*. 
 
 Karena Sukabumi Eundeur merupakan platform *multi-domain* (menggabungkan *ticketing*, e-commerce, portal berita, dan komunitas), desain CMS ini harus sangat intuitif namun kuat (*powerful*), menyembunyikan kompleksitas basis data dari staf operasional.
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Menyediakan antarmuka manajemen data (CRUD) yang ramah pengguna untuk seluruh entitas platform.
 2. Memisahkan modul-modul pengelolaan agar setiap staf (Editor, Event Manager, Merch Admin) dapat fokus pada layar kerjanya masing-masing.
@@ -52,7 +52,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Siklus Publikasi Konten
+## 🔄 User Flow
+
+### Alur Processes
+ Siklus Publikasi Konten
 
 Siklus dasar ini berlaku untuk pembuatan entitas besar seperti Event baru, Produk Merchandise, maupun Artikel Berita.
 
@@ -64,7 +67,7 @@ flowchart LR
     D --> B
     C --> |Publish| E[Verifikasi Validasi (Zod)]
     E --> |Gagal| B
-    E --> |Sukses| F[Tersimpan di Supabase DB]
+    E --> |Sukses| F[Tersimpan di PostgreSQL (Self-Hosted VPS)]
     F --> G[On-Demand ISR Revalidation]
     G --> H([Muncul di Web Publik])
 ```
@@ -134,7 +137,7 @@ Layar pertama setelah *login*, menampilkan metrik kinerja platform dalam bentuk 
 
 ## 🖼️ Sistem Pengelolaan Media (Media Library)
 
-Berbeda dengan sistem web lawas di mana setiap form memiliki *upload button* sendiri-sendiri, CMS ini akan mengadopsi sistem **Media Library Terpusat** (terhubung ke *Supabase Storage*).
+Berbeda dengan sistem web lawas di mana setiap form memiliki *upload button* sendiri-sendiri, CMS ini akan mengadopsi sistem **Media Library Terpusat** (terhubung ke *MinIO / Local VPS Storage*).
 
 **Keuntungan:**
 - Gambar poster event yang sama dapat digunakan ulang (*reused*) untuk artikel berita tanpa harus diunggah 2 kali (menghemat *storage*).
@@ -152,6 +155,57 @@ Modul konfigurasi utama platform, mencakup:
 - **Maintenance Mode:** *Toggle (Switch)* untuk mematikan situs publik secara sementara jika ada perbaikan (*maintenance*) tanpa harus mematikan server VPS.
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

@@ -47,7 +47,7 @@ Setelah fase MVP (Fase 1-3) beroperasi secara stabil, Sukabumi Eundeur bertransf
 ### In-Scope
 - Analisis kelayakan React Native vs Flutter untuk aplikasi mobile.
 - Arsitektur sistem pembayaran Cashless RFID Wristband di lokasi festival.
-- Proyeksi biaya infrastruktur VPS, Supabase, dan CDN.
+- Proyeksi biaya infrastruktur VPS, PostgreSQL (Self-Hosted VPS), dan CDN.
 - Kesiapan API Gateway untuk B2B Ticketing-as-a-Service (TaaS).
 
 ### Out-of-Scope
@@ -111,7 +111,7 @@ flowchart LR
     end
 
     subgraph Data
-        DB[(Supabase PostgreSQL Cluster)]
+        DB[(PostgreSQL (Self-Hosted VPS) PostgreSQL Cluster)]
     end
 
     Web & Mobile & POS --> Kong
@@ -130,7 +130,7 @@ flowchart LR
 
 ## ⚠️ Risks
 
-- **Biaya Infrastruktur Membengkak**: Peningkatan trafik dari aplikasi mobile dan RFID dapat meningkatkan tagihan Supabase/Cloud secara ekponensial jika caching tidak dioptimasi.
+- **Biaya Infrastruktur Membengkak**: Peningkatan trafik dari aplikasi mobile dan RFID dapat meningkatkan tagihan PostgreSQL (Self-Hosted VPS)/Cloud secara ekponensial jika caching tidak dioptimasi.
 
 ---
 
@@ -161,7 +161,7 @@ flowchart LR
 | Komponen | Fase 1-3 (MVP) | Fase 4 (Mobile App) | Fase 5 (Cashless & TaaS) |
 |---|---|---|---|
 | **VPS / Compute** | $20 / bulan | $60 / bulan | $200 / bulan |
-| **Supabase Database** | $25 / bulan (Pro) | $75 / bulan | $300 / bulan (Team/Enterprise) |
+| **PostgreSQL (Self-Hosted VPS)** | $25 / bulan (Pro) | $75 / bulan | $300 / bulan (Team/Enterprise) |
 | **Push Notification (OneSignal)** | Free Tier | $30 / bulan | $100 / bulan |
 | **Total Estimasi** | **~$45 / bulan** | **~$165 / bulan** | **~$600 / bulan** |
 

@@ -108,7 +108,7 @@ sequenceDiagram
     actor User
     participant App as Next.js Server Action
     participant RPC as PostgreSQL RPC Function
-    participant DB as Supabase DB
+    participant DB as PostgreSQL (Self-Hosted VPS)
     participant PG as Payment Gateway
 
     User->>App: Request Checkout (Cat ID, Qty)
@@ -129,9 +129,9 @@ sequenceDiagram
 
 ## 🔗 Dependencies
 
-- **Supabase Realtime / RPC**: Menjalankan fungsi atomik PostgreSQL.
+- **PostgreSQL (Self-Hosted VPS) Realtime / RPC**: Menjalankan fungsi atomik PostgreSQL.
 - **qrcode**: Node.js library untuk pembuatan gambar QR Code.
-- **node-cron / Supabasepg_cron**: Menjalankan otomatisasi pelepasan reservasi expired.
+- **node-cron / PostgreSQL (Self-Hosted VPS)pg_cron**: Menjalankan otomatisasi pelepasan reservasi expired.
 
 ---
 

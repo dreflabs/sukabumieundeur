@@ -1,6 +1,6 @@
 # 09 — Database Planning (Entity Design & DDL Schema)
 
-> **Single Source of Truth (SSOT) — Arsitektur Basis Data PostgreSQL & Supabase**  
+> **Single Source of Truth (SSOT) — Arsitektur Basis Data PostgreSQL & PostgreSQL (Self-Hosted VPS)**  
 > Dokumen ini menentukan perencanaan entitas basis data, skema DDL SQL konkrit, indeks performa, relasi Foreign Key, serta aturan *Row Level Security* (RLS) untuk platform **Sukabumi Eundeur**.
 
 ---
@@ -26,7 +26,7 @@
   - [4. Commerce & Order Tables](#4-commerce--order-tables)
   - [5. Content & Media Tables](#5-content--media-tables)
   - [6. Performance Indexes](#6-performance-indexes)
-  - [7. Supabase Row Level Security (RLS) Policies](#7-supabase-row-level-security-rls-policies)
+  - [7. PostgreSQL (Self-Hosted VPS) Row Level Security (RLS) Policies](#7-PostgreSQL (Self-Hosted VPS)-row-level-security-rls-policies)
 - [Future Improvements](#-future-improvements)
 - [Checklist](#-checklist)
 
@@ -34,14 +34,14 @@
 
 ## 🎯 Overview
 
-Basis data Sukabumi Eundeur dibangun menggunakan **PostgreSQL 16+** yang dikelola melalui BaaS **Supabase**. Arsitektur basis data ini menangani transaksi finansial (penjualan tiket & e-commerce merchandise), manajemen konten (berita, galeri, riwayat acara), platform komunitas, dan hak akses pengguna berbasis peranan (RBAC).
+Basis data Sukabumi Eundeur dibangun menggunakan **PostgreSQL 16+** yang dikelola melalui BaaS **PostgreSQL (Self-Hosted VPS)**. Arsitektur basis data ini menangani transaksi finansial (penjualan tiket & e-commerce merchandise), manajemen konten (berita, galeri, riwayat acara), platform komunitas, dan hak akses pengguna berbasis peranan (RBAC).
 
 ---
 
 ## 🎯 Objective
 
 1. Menyediakan skema database ter-normalisasi hingga bentuk **3NF (Third Normal Form)** untuk menjaga integritas data.
-2. Menjamin keamanan data transaksional & privasi pengguna menggunakan **Supabase Row Level Security (RLS)**.
+2. Menjamin keamanan data transaksional & privasi pengguna menggunakan **PostgreSQL (Self-Hosted VPS) Row Level Security (RLS)**.
 3. Menyediakan performa *querying* tinggi di bawah 50ms untuk *read operations* melalui indeks PostgreSQL yang dioptimasi.
 4. Mencegah manipulasi riwayat harga transaksi lalu melalui teknik *denormalization pricing snapshot*.
 
@@ -51,13 +51,13 @@ Basis data Sukabumi Eundeur dibangun menggunakan **PostgreSQL 16+** yang dikelol
 
 ### In-Scope
 - Definisi DDL SQL presisi (`CREATE TABLE`, Data Types, Foreign Keys, Check Constraints).
-- Pemetaan ekstensi profil pengguna dari `auth.users` Supabase ke `public.users`.
-- Kebijakan Supabase Row Level Security (RLS) untuk perlindungan data tingkat baris.
+- Pemetaan ekstensi profil pengguna dari `auth.users` PostgreSQL (Self-Hosted VPS) ke `public.users`.
+- Kebijakan PostgreSQL (Self-Hosted VPS) Row Level Security (RLS) untuk perlindungan data tingkat baris.
 - Indeks basis data B-Tree & GIN untuk pengurutan dan pencarian teks.
 
 ### Out-of-Scope
-- Konfigurasi cluster PostgreSQL bawaan VPS (dikelola melalui Supabase CLI / Managed Instance).
-- Skema internal bawaan Supabase (`auth`, `storage`, `realtime`).
+- Konfigurasi cluster PostgreSQL bawaan VPS (dikelola melalui PostgreSQL (Self-Hosted VPS) CLI / Managed Instance).
+- Skema internal bawaan PostgreSQL (Self-Hosted VPS) (`auth`, `storage`, `realtime`).
 
 ---
 
@@ -74,7 +74,7 @@ Basis data Sukabumi Eundeur dibangun menggunakan **PostgreSQL 16+** yang dikelol
 
 | ID | Deskripsi Kebutuhan Fungsional | Tabel Terkait |
 |---|---|---|
-| **FR-DB-01** | Sistem dapat menyimpan profil pengguna terikat pada akun autentikasi Supabase. | `public.users` |
+| **FR-DB-01** | Sistem dapat menyimpan profil pengguna terikat pada akun autentikasi PostgreSQL (Self-Hosted VPS). | `public.users` |
 | **FR-DB-02** | Sistem dapat mencatat stok tiket dan mengurangi sisa kuota secara atomik. | `ticket_categories` |
 | **FR-DB-03** | Sistem dapat menyimpan pesanan yang mencakup gabungan tiket dan merchandise. | `orders`, `order_items` |
 | **FR-DB-04** | Sistem dapat mencatat riwayat check-in tiket beserta waktu dan petugas scanner. | `tickets` |
@@ -127,7 +127,7 @@ erDiagram
 
 ## 🔗 Dependencies
 
-- **Supabase Auth Subsystem**: Bergantung pada `auth.users` untuk triggers sinkronisasi profil.
+- **JWT & Self-Hosted Auth Handler Subsystem**: Bergantung pada `auth.users` untuk triggers sinkronisasi profil.
 - **PostgreSQL Extensions**: Membutuhkan ekstensi `uuid-ossp` dan `pg_trgm`.
 
 ---
@@ -135,7 +135,7 @@ erDiagram
 ## ⚠️ Risks
 
 - **Deadlock Kuota Tiket**: Potensi deadlock saat *war ticket* jika update kuota dilakukan tanpa transaksi terisolasi (`SELECT ... FOR UPDATE`).
-- **Orphan Data Storage**: File gambar di Supabase Storage berisiko menjadi orphan jika URL di tabel `media` atau `products` dihapus tanpa trigger penghapusan file.
+- **Orphan Data Storage**: File gambar di MinIO / Local VPS Storage berisiko menjadi orphan jika URL di tabel `media` atau `products` dihapus tanpa trigger penghapusan file.
 
 ---
 
@@ -356,7 +356,7 @@ CREATE INDEX idx_news_status_published ON public.news(status, published_at DESC)
 CREATE INDEX idx_news_title_trgm ON public.news USING gin (title gin_trgm_ops);
 ```
 
-### 7. Supabase Row Level Security (RLS) Policies
+### 7. PostgreSQL (Self-Hosted VPS) Row Level Security (RLS) Policies
 
 ```sql
 -- 1. Enable RLS on all tables
@@ -407,9 +407,9 @@ CREATE POLICY "Admin full access events" ON public.events
 ## ✅ Checklist
 
 - [x] Skema DDL SQL lengkap dengan Data Types, PK, FK, & Constraints.
-- [x] Trigger otomatis penciptaan profil dari Supabase Auth.
+- [x] Trigger otomatis penciptaan profil dari JWT & Self-Hosted Auth Handler.
 - [x] Indeks performa B-Tree & GIN.
-- [x] Aturan Supabase Row Level Security (RLS) policies terpasang.
+- [x] Aturan PostgreSQL (Self-Hosted VPS) Row Level Security (RLS) policies terpasang.
 - [x] Memenuhi 15 komponen standar dokumentasi arsitektur.
 
 ---

@@ -62,7 +62,7 @@ Sistem Sukabumi Eundeur di-deploy pada VPS Ubuntu 22.04 LTS (Self-Managed) mengg
 
 1. **Prinsip Imutabilitas Production**: Dilarang mengubah kode program atau variabel environment `.env.production` secara langsung di server VPS tanpa melalui repository GitHub.
 2. **Zero-Downtime Reload**: Setiap deploy kode baru wajib menggunakan fitur PM2 `reload` (bukan `restart`) agar koneksi pengguna aktif tidak terputus.
-3. **Backup Sebelum Major Release**: Sebelum merilis update besar (Major Version), tim wajib mengeksekusi skrip dump basis data Supabase terlebih dahulu.
+3. **Backup Sebelum Major Release**: Sebelum merilis update besar (Major Version), tim wajib mengeksekusi skrip dump basis data PostgreSQL (Self-Hosted VPS) terlebih dahulu.
 
 ---
 
@@ -117,7 +117,7 @@ flowchart LR
     end
 
     subgraph External_Cloud
-        SupaDB[(Supabase PostgreSQL)]
+        SupaDB[(PostgreSQL (Self-Hosted VPS) PostgreSQL)]
     end
 
     User -->|HTTPS Request| Nginx
@@ -194,8 +194,8 @@ jobs:
 
       - name: Build Next.js Application
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_PostgreSQL (Self-Hosted VPS)_URL: ${{ secrets.NEXT_PUBLIC_PostgreSQL (Self-Hosted VPS)_URL }}
+          NEXT_PUBLIC_PostgreSQL (Self-Hosted VPS)_ANON_KEY: ${{ secrets.NEXT_PUBLIC_PostgreSQL (Self-Hosted VPS)_ANON_KEY }}
         run: npm run build
 
   deploy-to-vps:

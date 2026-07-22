@@ -59,7 +59,7 @@ Platform Sukabumi Eundeur menerapkan arsitektur hibrida *Feature-Sliced Design* 
 
 ## 💼 Business Rules
 
-1. **Aturan Pemisahan Komponen Atomic**: Komponen generik di `/components/ui/` **tidak boleh** mengimpor pustaka Supabase / API backend secara langsung (harus bersifat *Pure Presentation Components*).
+1. **Aturan Pemisahan Komponen Atomic**: Komponen generik di `/components/ui/` **tidak boleh** mengimpor pustaka PostgreSQL (Self-Hosted VPS) / API backend secara langsung (harus bersifat *Pure Presentation Components*).
 2. **Penggunaan Path Alias**: Impor berkas **wajib** menggunakan alias `@/components/...` atau `@/lib/...`. Dilarang menggunakan relatif path panjang seperti `../../../../components/Button`.
 3. **Pemisahan Server vs Client**: Komponen yang menggunakan React Hook (`useState`, `useEffect`) wajib menambahkan directive `'use client'` di baris pertama file.
 
@@ -192,7 +192,7 @@ sukabumi-eundeur/
 │   │   └── news/
 │   │
 │   ├── lib/                     # Helpers & Configurations
-│   │   ├── supabase/            # Supabase Client Credentials
+│   │   ├── PostgreSQL (Self-Hosted VPS)/            # PostgreSQL & Database Client Credentials
 │   │   │   ├── server.ts
 │   │   │   └── client.ts
 │   │   └── utils/               # Formatters (formatCurrency, formatDate)
@@ -210,10 +210,10 @@ sukabumi-eundeur/
 
 ### 2. Component Layering Architecture
 
-1. **`src/components/ui/`**: Pure UI Component tanpa logika Supabase (Dumb Component).
+1. **`src/components/ui/`**: Pure UI Component tanpa logika PostgreSQL (Self-Hosted VPS) (Dumb Component).
 2. **`src/components/cards/`**: Komponen kartu visual yang mengonsumsi props data.
 3. **`src/components/sections/`**: Blok pembangun utama halaman utama.
-4. **`src/features/`**: Mengolah pemanggilan Server Actions & Supabase Client.
+4. **`src/features/`**: Mengolah pemanggilan Server Actions & PostgreSQL & Database Client.
 
 ### 3. Tailwind CSS v4 & Tokens Configuration
 

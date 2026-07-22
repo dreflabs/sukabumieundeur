@@ -22,7 +22,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 *Information Architecture* (IA) adalah fondasi pengorganisasian, penamaan, dan pencarian (*searchability*) informasi dalam sebuah website. Platform ekosistem seperti Sukabumi Eundeur memiliki banyak sekali entitas informasi (Berita, Artis, Merchandise, Tiket, Riwayat Event). Tanpa IA yang solid, pengguna akan kebingungan (tersesat) saat mencari informasi spesifik.
 
@@ -30,7 +30,7 @@ Dokumen ini menjadi cetak biru (*blueprint*) bagi UI/UX Designer dalam merancang
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Mengelompokkan fungsi dan konten ke dalam hierarki yang logis.
 2. Memudahkan pengguna menavigasi platform dari satu layanan ke layanan lain (misal: dari membaca berita ke membeli tiket).
@@ -52,7 +52,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Pengelompokan Konten
+## 🔄 User Flow
+
+### Alur Processes
+ Pengelompokan Konten
 
 Pengelompokan informasi didasarkan pada intensi pengguna (*user intent*):
 
@@ -179,6 +182,51 @@ Untuk mempermudah pencarian (Search & Filter), konten dinamis dikelompokkan meng
 - **Tipe Event:** Festival Utama, Road to Festival, Intimate Gig, Community Gathering
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

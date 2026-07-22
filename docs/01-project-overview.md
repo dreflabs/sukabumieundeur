@@ -24,7 +24,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 **Sukabumi Eundeur** adalah sebuah platform digital yang berfungsi sebagai **ekosistem musik dan kreatif** berbasis komunitas lokal Kota/Kabupaten Sukabumi. Berbeda dengan website event konvensional yang hanya menampilkan informasi acara secara statis, Sukabumi Eundeur dirancang sebagai **platform multi-fungsi** yang mengintegrasikan:
 
@@ -44,7 +44,7 @@ Nama **"Eundeur"** sendiri merupakan istilah dalam bahasa Sunda yang menggambark
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 Dokumen *Project Overview* ini bertujuan untuk:
 
@@ -124,7 +124,10 @@ Sukabumi Eundeur terdiri atas 12 pilar utama sebagai satu kesatuan ekosistem:
 
 ---
 
-## 🔄 Flow — Posisi Dokumen dalam Siklus Perencanaan
+## 🔄 User Flow
+
+### Alur Processes
+ Posisi Dokumen dalam Siklus Perencanaan
 
 ```mermaid
 flowchart LR
@@ -193,7 +196,7 @@ Sukabumi Eundeur memposisikan diri sebagai platform festival musik **berskala lo
 | Arsip Historis | Tidak ada/minim | Sistem History Event terstruktur |
 | Identitas Brand | Generik | Identitas lokal Sukabumi yang kuat |
 | Skalabilitas | Terbatas pada satu event | Dirancang untuk berkembang ke skala nasional |
-| Teknologi | Bervariasi, sering usang | Stack modern (Next.js 16, React 19, Supabase) |
+| Teknologi | Bervariasi, sering usang | Stack modern (Next.js 16, React 19, PostgreSQL (Self-Hosted VPS)) |
 
 ---
 
@@ -216,6 +219,57 @@ timeline
 ```
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

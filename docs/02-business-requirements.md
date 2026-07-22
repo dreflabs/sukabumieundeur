@@ -29,7 +29,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Dokumen *Business Requirements* menjelaskan **kebutuhan dari sudut pandang bisnis** yang mendasari pengembangan platform Sukabumi Eundeur. Dokumen ini menjawab pertanyaan strategis seperti:
 
@@ -44,7 +44,7 @@ Dokumen *Business Requirements* menjelaskan **kebutuhan dari sudut pandang bisni
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Menetapkan tujuan bisnis yang **terukur (measurable)** dan **selaras (aligned)** dengan visi platform.
 2. Mengidentifikasi seluruh pemangku kepentingan dan kepentingan masing-masing.
@@ -74,7 +74,7 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🎯 Tujuan Bisnis (Business Objectives)
+## 🎯 Objective Bisnis (Business Objectives)
 
 | Kategori | Tujuan | Target Indikatif |
 |---|---|---|
@@ -158,7 +158,10 @@ Model ini memungkinkan platform menghasilkan nilai dari berbagai sisi ekosistem,
 
 ---
 
-## 🔄 Flow — Alur Nilai Bisnis
+## 🔄 User Flow
+
+### Alur Processes
+ Alur Nilai Bisnis
 
 ```mermaid
 flowchart LR
@@ -278,6 +281,52 @@ Berikut aturan bisnis tingkat tinggi yang harus menjadi acuan logika sistem (det
 | Kompetisi platform ticketing nasional | Kehilangan pangsa pasar lokal | Diferensiasi melalui ekosistem lengkap & identitas lokal |
 
 ---
+
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

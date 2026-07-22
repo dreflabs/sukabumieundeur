@@ -24,7 +24,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 *User Flow* adalah representasi visual langkah-demi-langkah yang dilalui oleh pengguna untuk menyelesaikan suatu tujuan spesifik di dalam platform. Dokumen ini menerjemahkan daftar fitur (dari `04-feature-list.md`) menjadi urutan tindakan interaktif.
 
@@ -32,7 +32,7 @@ Mengingat Sukabumi Eundeur menggabungkan fungsi portal informasi dan platform tr
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Memetakan perjalanan (*journey*) yang optimal untuk setiap *use case* utama.
 2. Mengidentifikasi titik henti (*drop-off points*) atau potensi hambatan (*friction*) dalam proses checkout.
@@ -57,7 +57,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Peta Alur Utama
+## 🔄 User Flow
+
+### Alur Processes
+ Peta Alur Utama
 
 Konsep dasar *user flow* di platform ini menganut prinsip **"Browsing is free, Action requires Identity"**.
 Artinya, pengguna dapat berselancar (*browsing*) seluruh katalog publik tanpa harus login. Autentikasi (Sign In/Sign Up) hanya diminta (di-*prompt*) pada saat pengguna menekan tombol aksi transaksional (Beli Tiket, Tambah Keranjang, Post Forum).
@@ -169,6 +172,57 @@ flowchart TD
 ```
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 

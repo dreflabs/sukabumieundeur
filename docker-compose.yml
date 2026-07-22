@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PRIMARY DATABASE ENGINE (POSTGRESQL 16 SELF-HOSTED)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: sukabumi_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: sukabumi_eundeur_db
+      POSTGRES_USER: postgres_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_secret_key_2026}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/migrations:/docker-entrypoint-initdb.d
+
+  # ----------------------------------------------------------------------------
+  # 2. IN-MEMORY CACHE & TICKET WAR LOCK MANAGER (REDIS 7)
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: sukabumi_redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_secret_key_2026}
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

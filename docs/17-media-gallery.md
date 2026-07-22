@@ -12,7 +12,7 @@
 - [Flow — Pengelolaan Aset Visual](#-flow--pengelolaan-aset-visual)
 - [Diagram Arsitektur Galeri](#-diagram-arsitektur-galeri)
 - [Kategorisasi & Album](#-kategorisasi--album)
-- [Manajemen File (Supabase Storage)](#-manajemen-file-supabase-storage)
+- [Manajemen File (MinIO / Local VPS Storage)](#-manajemen-file-PostgreSQL (Self-Hosted VPS)-storage)
 - [Optimasi Gambar & Video (Performance)](#-optimasi-gambar--video-performance)
 - [Checklist](#-checklist)
 - [Catatan](#-catatan)
@@ -22,7 +22,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 **Media Gallery** di Sukabumi Eundeur melayani dua fungsi:
 1. **Fungsi Internal (CMS):** Sebagai pustaka (*Media Library*) sentral bagi Admin untuk menyimpan aset poster, foto artis, dan banner web.
@@ -32,12 +32,12 @@ Karena gambar (dan video) merupakan kontributor terbesar penyebab *website* menj
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Menyediakan repositori terpusat untuk semua aset visual agar tidak terjadi duplikasi (*upload* gambar yang sama berkali-kali).
 2. Merancang struktur album yang rapi untuk memisahkan dokumentasi antar-event.
 3. Memastikan semua aset visual disajikan (*delivered*) kepada *end-user* dalam format teringan (WebP/AVIF) tanpa mengorbankan kualitas.
-4. Menjaga batas kuota pengeluaran biaya (*Cost Control*) pada BaaS Storage (Supabase).
+4. Menjaga batas kuota pengeluaran biaya (*Cost Control*) pada BaaS Storage (PostgreSQL (Self-Hosted VPS)).
 
 ---
 
@@ -45,7 +45,7 @@ Karena gambar (dan video) merupakan kontributor terbesar penyebab *website* menj
 
 Dokumen ini mencakup:
 - Struktur Album dan Taksonomi Galeri (Frontend).
-- Manajemen integrasi dengan Supabase Storage (Backend).
+- Manajemen integrasi dengan MinIO / Local VPS Storage (Backend).
 - Strategi format *file* dan optimisasi aset.
 
 Dokumen ini **tidak mencakup**:
@@ -54,14 +54,17 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Pengelolaan Aset Visual
+## 🔄 User Flow
+
+### Alur Processes
+ Pengelolaan Aset Visual
 
 ```mermaid
 flowchart TD
     A[Admin CMS] -->|Upload File JPG/PNG| B(Validasi Ukuran & Format)
     B -->|Gagal| C[Tolak: File > 2MB]
     B -->|Lolos| D[Ubah Nama File & Buat Path]
-    D --> E[(Supabase Storage: Bucket)]
+    D --> E[(MinIO / Local VPS Storage: Bucket)]
     E --> F[Simpan URL ke DB Media Library]
     
     U[Pengguna Publik] --> G[Kunjungi Halaman Gallery]
@@ -78,7 +81,7 @@ Penyimpanan (*Buckets*) akan dipisah secara logis untuk mencegah tercampurnya as
 
 ```mermaid
 mindmap
-  root((Supabase<br/>Storage))
+  root((PostgreSQL (Self-Hosted VPS)<br/>Storage))
     Bucket: Public Media
       /events (Poster, Banner)
       /gallery (Album Foto, Dokumentasi)
@@ -102,7 +105,7 @@ Di halaman publik (`/gallery`), foto-foto tidak ditampilkan secara acak dan bert
 
 ---
 
-## 💽 Manajemen File (Supabase Storage)
+## 💽 Manajemen File (MinIO / Local VPS Storage)
 
 1. **Naming Convention:** Admin harus diatur oleh sistem agar tidak mengunggah file dengan nama asli seperti `IMG_1234.JPG`. Sistem CMS secara otomatis mengubah nama file saat *upload* menjadi *slug* yang ramah SEO (contoh: `eundeur-fest-2026-crowd-01.jpg`).
 2. **Upload Limit:** Untuk menjaga batas kuota *storage*, batasi ukuran unggahan melalui CMS maksimal **2 MB per foto**. Jika foto asli berukuran 15 MB dari fotografer, Admin wajib mengompresinya terlebih dahulu menggunakan *tools* eksternal sebelum *upload*.
@@ -112,11 +115,62 @@ Di halaman publik (`/gallery`), foto-foto tidak ditampilkan secara acak dan bert
 ## ⚡ Optimasi Gambar & Video (Performance)
 
 - **Gambar:** 
-  Wajib menggunakan komponen `<Image />` bawaan Next.js (`next/image`). Komponen ini secara otomatis akan mengubah JPG/PNG dari Supabase menjadi **WebP** atau **AVIF**, serta menyesuaikan resolusi gambar dengan ukuran layar pengguna (HP vs Desktop).
+  Wajib menggunakan komponen `<Image />` bawaan Next.js (`next/image`). Komponen ini secara otomatis akan mengubah JPG/PNG dari PostgreSQL (Self-Hosted VPS) menjadi **WebP** atau **AVIF**, serta menyesuaikan resolusi gambar dengan ukuran layar pengguna (HP vs Desktop).
 - **Video:** 
-  Platform **dilarang keras** (*anti-pattern*) men- *hosting* file video (MP4) langsung di Supabase Storage untuk ditonton secara publik, karena akan menghabiskan kuota *bandwidth* secara eksponensial. Seluruh video (termasuk *Aftermovie* atau *Teaser*) wajib diunggah ke platform video (seperti **YouTube** atau **Vimeo**), dan website Sukabumi Eundeur hanya melakukan penyisipan (*Embed Component*).
+  Platform **dilarang keras** (*anti-pattern*) men- *hosting* file video (MP4) langsung di MinIO / Local VPS Storage untuk ditonton secara publik, karena akan menghabiskan kuota *bandwidth* secara eksponensial. Seluruh video (termasuk *Aftermovie* atau *Teaser*) wajib diunggah ke platform video (seperti **YouTube** atau **Vimeo**), dan website Sukabumi Eundeur hanya melakukan penyisipan (*Embed Component*).
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 
@@ -144,7 +198,7 @@ Di halaman publik (`/gallery`), foto-foto tidak ditampilkan secara acak dan bert
 ## 🏢 Enterprise Recommendation
 
 > **Image CDN (Content Delivery Network)**
-> Walaupun Next.js *Image Optimization* sangat bagus, ia membebani komputasi memori pada server VPS Anda setiap kali harus meresize gambar. Untuk sistem *enterprise*, sangat disarankan menggunakan **Image CDN eksternal** pihak ketiga (seperti Cloudinary, Imgix, atau BunnyCDN). Dengan CDN, proses *resize* (`?width=300&format=webp`) diserahkan ke server CDN yang tersebar secara global, membuat VPS aplikasi Anda tetap ringan dan cepat.
+> Walaupun Next.js *Image Optimization* sangat bagus, ia membebani komputasi memori pada server VPS Anda setiap kali harus meresize gambar. Untuk sistem *enterprise*, sangat disarankan menggunakan **Self-Hosted MinIO Object Storage & Local Nginx Caching** di server VPS Ubuntu Anda. Dengan MinIO & Nginx Caching, proses serve gambar WebP dilakukan secara efisien tanpa biaya SaaS eksternal. Dengan CDN, proses *resize* (`?width=300&format=webp`) diserahkan ke server CDN yang tersebar secara global, membuat VPS aplikasi Anda tetap ringan dan cepat.
 
 ---
 

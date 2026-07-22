@@ -55,7 +55,7 @@ Platform Sukabumi Eundeur memanfaatkan Next.js 16 App Router dengan kombinasi **
 - Penanganan HTTP Status Code & Error Structure.
 
 ### Out-of-Scope
-- Dokumentasi API internal pihak ketiga (Midtrans SDK internal methods, Supabase Cloud Infrastructure APIs).
+- Dokumentasi API internal pihak ketiga (Midtrans SDK internal methods, PostgreSQL (Self-Hosted VPS) Cloud Infrastructure APIs).
 
 ---
 
@@ -95,7 +95,7 @@ sequenceDiagram
     actor User as Pengguna (Frontend)
     participant SA as Server Action (checkoutTicket)
     participant Zod as Zod Validator
-    participant DB as PostgreSQL (Supabase)
+    participant DB as PostgreSQL (PostgreSQL (Self-Hosted VPS))
     participant PG as Payment Gateway (Midtrans)
 
     User->>SA: Submit Form Checkout (Category, Visitor Data)
@@ -130,15 +130,15 @@ flowchart LR
     end
 
     subgraph Storage_BaaS
-        Supabase[(Supabase PostgreSQL)]
+        PostgreSQL (Self-Hosted VPS)[(PostgreSQL (Self-Hosted VPS) PostgreSQL)]
     end
 
     subgraph External
         Midtrans[Payment Gateway]
     end
 
-    Client --> RL --> SA --> Zod --> Supabase
-    Midtrans -->|POST Webhook| RH --> Supabase
+    Client --> RL --> SA --> Zod --> PostgreSQL (Self-Hosted VPS)
+    Midtrans -->|POST Webhook| RH --> PostgreSQL (Self-Hosted VPS)
 ```
 
 ---

@@ -28,7 +28,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Dokumen *System Requirements* menerjemahkan kebutuhan bisnis (lihat [`02-business-requirements.md`](./02-business-requirements.md)) menjadi **kebutuhan teknis tingkat tinggi**. Dokumen ini menjadi jembatan antara dunia bisnis dan dunia implementasi teknis, mencakup:
 
@@ -44,7 +44,7 @@ Dokumen *System Requirements* menerjemahkan kebutuhan bisnis (lihat [`02-busines
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Menetapkan kebutuhan fungsional tingkat tinggi sebagai dasar perencanaan fitur detail.
 2. Menetapkan standar kebutuhan non-fungsional (*performance, security, scalability, availability, maintainability, usability*).
@@ -110,15 +110,15 @@ Dokumen ini **tidak mencakup**:
 
 ## 🏗️ Arsitektur Sistem Tingkat Tinggi
 
-Sukabumi Eundeur menggunakan pendekatan **Modern Jamstack-inspired Architecture** dengan kombinasi rendering hybrid (SSR/SSG/ISR) dan **Backend-as-a-Service (BaaS)** melalui Supabase.
+Sukabumi Eundeur menggunakan pendekatan **Modern Jamstack-inspired Architecture** dengan kombinasi rendering hybrid (SSR/SSG/ISR) dan **Backend-as-a-Service (BaaS)** melalui PostgreSQL (Self-Hosted VPS).
 
 | Layer | Komponen | Peran |
 |---|---|---|
 | **Presentation Layer** | Next.js 16 + React 19 + Tailwind CSS v4 | Rendering UI, routing, interaktivitas |
 | **Application Layer** | Next.js Route Handlers / Server Actions | Logika bisnis sisi server, orkestrasi request |
-| **Data Layer** | Supabase (PostgreSQL) | Penyimpanan data terstruktur |
-| **Storage Layer** | Supabase Storage | Penyimpanan file media (gambar, dokumen, video) |
-| **Auth Layer** | Supabase Auth | Autentikasi & manajemen sesi pengguna |
+| **Data Layer** | PostgreSQL (Self-Hosted VPS) (PostgreSQL) | Penyimpanan data terstruktur |
+| **Storage Layer** | MinIO / Local VPS Storage | Penyimpanan file media (gambar, dokumen, video) |
+| **Auth Layer** | JWT & Self-Hosted Auth Handler | Autentikasi & manajemen sesi pengguna |
 | **Infrastructure Layer** | VPS | Hosting aplikasi & proses deployment |
 | **Version Control** | GitHub | Kolaborasi kode & CI/CD trigger |
 
@@ -135,27 +135,30 @@ Sukabumi Eundeur menggunakan pendekatan **Modern Jamstack-inspired Architecture*
 | **React 19** | Ekosistem matang, mendukung server components, performa rendering optimal |
 | **TypeScript** | Type-safety mengurangi bug pada sistem kompleks dengan banyak modul (ticketing, commerce, CMS) |
 | **Tailwind CSS v4** | Konsistensi desain, kecepatan pengembangan UI, ukuran bundel CSS optimal |
-| **Supabase** | Menyediakan Auth, Database, Storage, dan Realtime dalam satu ekosistem terintegrasi, mempercepat pengembangan tanpa membangun backend custom penuh |
+| **PostgreSQL (Self-Hosted VPS)** | Menyediakan Auth, Database, Storage, dan Realtime dalam satu ekosistem terintegrasi, mempercepat pengembangan tanpa membangun backend custom penuh |
 | **PostgreSQL** | Database relasional yang matang, mendukung relasi kompleks antar entitas (event, tiket, order, user) |
 | **GitHub** | Standar industri untuk version control, kolaborasi tim, dan integrasi CI/CD |
 | **VPS Deployment** | Kontrol penuh atas biaya dan konfigurasi server, cocok untuk fase awal dengan kebutuhan skala menengah |
 
 ---
 
-## 🔄 Flow — Alur Request Sistem
+## 🔄 User Flow
+
+### Alur Processes
+ Alur Request Sistem
 
 ```mermaid
 flowchart LR
     U[User Browser] -->|HTTP Request| NX[Next.js Application]
     NX -->|Server Component/Action| API[Route Handler / Server Action]
-    API -->|Query/Mutation| SB[Supabase]
+    API -->|Query/Mutation| SB[PostgreSQL (Self-Hosted VPS)]
     SB -->|Data| API
     API -->|Response/HTML/JSON| NX
     NX -->|Rendered Page| U
 
     SB --> DB[(PostgreSQL)]
-    SB --> ST[(Supabase Storage)]
-    SB --> AU[Supabase Auth]
+    SB --> ST[(MinIO / Local VPS Storage)]
+    SB --> AU[JWT & Self-Hosted Auth Handler]
 ```
 
 ---
@@ -172,11 +175,11 @@ flowchart TB
         NextJS[Next.js 16 App<br/>React 19 + TypeScript + Tailwind v4]
     end
 
-    subgraph Backend["Backend Layer — Supabase"]
-        Auth[Supabase Auth]
+    subgraph Backend["Backend Layer — PostgreSQL (Self-Hosted VPS)"]
+        Auth[JWT & Self-Hosted Auth Handler]
         DB[(PostgreSQL Database)]
-        Storage[(Supabase Storage)]
-        Realtime[Supabase Realtime]
+        Storage[(MinIO / Local VPS Storage)]
+        Realtime[PostgreSQL (Self-Hosted VPS) Realtime]
     end
 
     subgraph External["Integrasi Eksternal"]
@@ -208,7 +211,7 @@ flowchart TB
 | **Production** | Lingkungan aktif digunakan pengguna nyata | Data nyata, konfigurasi keamanan penuh, monitoring aktif |
 
 > **Best Practice**
-> Setiap environment harus memiliki **instance Supabase project terpisah** (atau minimal skema/database terpisah) untuk mencegah data development/staging tercampur dengan data production.
+> Setiap environment harus memiliki **instance PostgreSQL (Self-Hosted VPS) project terpisah** (atau minimal skema/database terpisah) untuk mencegah data development/staging tercampur dengan data production.
 
 ---
 
@@ -234,7 +237,7 @@ flowchart TB
 - **Model Hosting:** VPS (Virtual Private Server) — self-managed.
 - **Deployment Target:** Aplikasi Next.js dijalankan pada VPS dengan proses manajemen (process manager) yang sesuai untuk aplikasi Node.js.
 - **Reverse Proxy:** Direkomendasikan menggunakan reverse proxy untuk pengelolaan domain, SSL/TLS, dan load balancing dasar.
-- **Backup Strategy:** Backup berkala untuk database (PostgreSQL/Supabase) dan storage media.
+- **Backup Strategy:** Backup berkala untuk database (PostgreSQL/PostgreSQL (Self-Hosted VPS)) dan storage media.
 - **Monitoring:** Direkomendasikan penggunaan tools monitoring uptime dan resource server.
 
 > **Catatan**
@@ -245,7 +248,7 @@ flowchart TB
 ## 🚧 Batasan Teknis (Technical Constraints)
 
 - Infrastruktur awal menggunakan **VPS tunggal**, bukan arsitektur multi-server/cloud-native dari awal.
-- Ketergantungan pada **Supabase** sebagai BaaS berarti batasan skalabilitas mengikuti kapasitas paket Supabase yang digunakan.
+- Ketergantungan pada **PostgreSQL (Self-Hosted VPS)** sebagai BaaS berarti batasan skalabilitas mengikuti kapasitas paket PostgreSQL (Self-Hosted VPS) yang digunakan.
 - Tidak ada dukungan native mobile app pada fase awal — seluruh akses dilakukan melalui browser (web responsive).
 - Kapasitas tim pengembang pada fase awal kemungkinan terbatas (*lean team*), memengaruhi kecepatan pengembangan paralel antar modul.
 
@@ -258,6 +261,57 @@ flowchart TB
 - Kebijakan privasi dan syarat & ketentuan platform harus tersedia dan mudah diakses pengguna.
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 
@@ -282,7 +336,7 @@ flowchart TB
 
 ## 💡 Best Practice
 
-- Terapkan prinsip **Separation of Concerns** antara presentation layer (Next.js) dan data layer (Supabase) agar setiap layer dapat berkembang secara independen.
+- Terapkan prinsip **Separation of Concerns** antara presentation layer (Next.js) dan data layer (PostgreSQL (Self-Hosted VPS)) agar setiap layer dapat berkembang secara independen.
 - Gunakan **Environment Variables** untuk seluruh konfigurasi sensitif (API key, database URL) — jangan pernah hardcode kredensial dalam kode sumber.
 - Terapkan **Infrastructure as Code (IaC)** secara bertahap untuk konfigurasi VPS agar proses provisioning dapat direplikasi dan diaudit.
 

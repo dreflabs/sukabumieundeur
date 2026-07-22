@@ -22,7 +22,7 @@
 
 ---
 
-## 🎯 Penjelasan
+## 🎯 Overview
 
 Di luar masa penjualan tiket, platform festival musik membutuhkan mesin penggerak agar pengguna terus kembali berkunjung (*user retention*). **News Portal** adalah solusi utamanya. Portal berita ini akan menyajikan liputan tentang musisi lokal, pengumuman *line-up*, hingga liputan kegiatan komunitas di Sukabumi.
 
@@ -30,7 +30,7 @@ Sistem ini didesain agar mudah digunakan oleh tim redaksi (Jurnalis/Editor) mela
 
 ---
 
-## 🎯 Tujuan
+## 🎯 Objective
 
 1. Menyediakan ruang sentral untuk publikasi rilis pers, artikel, dan berita komunitas.
 2. Membangun struktur SEO (*Search Engine Optimization*) yang kuat agar Sukabumi Eundeur mendominasi pencarian terkait "Musik Sukabumi" di Google.
@@ -53,7 +53,10 @@ Dokumen ini **tidak mencakup**:
 
 ---
 
-## 🔄 Flow — Siklus Editorial Berita
+## 🔄 User Flow
+
+### Alur Processes
+ Siklus Editorial Berita
 
 Untuk menjaga kualitas publikasi, pembuatan berita mengikuti alur keredaksian standar:
 
@@ -73,7 +76,7 @@ flowchart TD
         E[Chief Editor] -->|Approve & Publish| B
     end
 
-    subgraph Database["Supabase"]
+    subgraph Database["PostgreSQL (Self-Hosted VPS)"]
         B -->|Simpan| T_Art[(Tabel: News)]
         T_Art -->|Relasi FK| T_Cat[(Tabel: Categories)]
         T_Art -->|Relasi M:N| T_Tag[(Tabel: Tags)]
@@ -125,16 +128,94 @@ Tagar bersifat non-hierarkis dan plural (1 Artikel = Banyak Tags). Berguna untuk
 ## 📈 Pencarian & Kalkulasi Trending
 
 ### Sistem Pencarian (Search)
-- Kolom pencarian di halaman *News* akan melakukan *Full-Text Search* ke kolom `title` dan `content` pada Supabase PostgreSQL.
+- Kolom pencarian di halaman *News* akan melakukan *Full-Text Search* ke kolom `title` dan `content` pada PostgreSQL (Self-Hosted VPS) PostgreSQL.
 - Pencarian didukung oleh filter berdasarkan *Kategori* dan *Rentang Tanggal*.
 
 ### Kalkulasi Trending
 Alih-alih menggunakan sistem algoritma rekomendasi *machine learning* yang berat, "Artikel Trending" pada fase 1 dihitung dengan formula sederhana:
 - **Parameter:** Jumlah Kunjungan Halaman (*Pageviews*).
 - **Timeframe:** Dihitung berdasarkan *views* terbanyak dalam **7 hari terakhir** (bukan terbanyak sepanjang masa, agar berita lama tidak terus mendominasi).
-- **Implementasi:** Next.js memanggil *Server Action* yang mengeksekusi RPC (*Remote Procedure Call*) di Supabase untuk menghitung statistik *views* per artikel per pekan.
+- **Implementasi:** Next.js memanggil *Server Action* yang mengeksekusi RPC (*Remote Procedure Call*) di PostgreSQL (Self-Hosted VPS) untuk menghitung statistik *views* per artikel per pekan.
 
 ---
+
+
+
+## 💼 Business Rules
+- Seluruh aturan bisnis modul harus tunduk pada Single Source of Truth (SSOT) Sukabumi Eundeur.
+- Transaksi & data mutasi wajib mencatat audit log timestamp.
+
+
+## ⚙️ Functional Requirements
+- Mengimplementasikan seluruh endpoint API & komponen UI terkait.
+- Mengelola state & autentikasi pengguna secara otomatis melalui JWT & Self-Hosted Auth Handler.
+
+
+## 🚀 Non Functional Requirements
+- Latensi respon < 200ms.
+- Uptime target 99.9%.
+- Aksesibilitas WCAG 2.1 Level AA.
+
+
+## 🏗️ Architecture
+
+### Sequence Diagram — Editorial Publishing Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Author as Jurnalis / Admin Content
+    participant CMS as CMS Editorial UI
+    participant API as Next.js API Route
+    participant DB as PostgreSQL (PostgreSQL (Self-Hosted VPS))
+    participant CDN as Vercel / Nginx Edge Cache
+
+    Author->>CMS: Input Artikel (Title, Excerpt, Content Markdown, Cover)
+    CMS->>API: POST /api/v1/news (Status: DRAFT)
+    API->>DB: INSERT INTO news_articles (status = 'DRAFT')
+    DB-->>API: 201 Created (Article ID)
+    API-->>CMS: Draf Tersimpan
+
+    Author->>CMS: Klik 'Publish Artikel'
+    CMS->>API: PATCH /api/v1/news/:id/publish
+    API->>DB: UPDATE news_articles SET status = 'PUBLISHED', published_at = NOW()
+    DB-->>API: 200 OK
+    API->>CDN: Trigger On-Demand ISR Revalidation (`/news`, `/news/:slug`)
+    CDN-->>API: Cache Cleared & Regenerated
+    API-->>CMS: Status Artikel Live di Website Publik
+```
+
+- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Backend**: PostgreSQL (Self-Hosted VPS) (PostgreSQL + RLS + Storage).
+- **Infrastructure**: VPS Ubuntu + Nginx + PM2.
+
+
+## 🔗 Dependencies
+- `@PostgreSQL (Self-Hosted VPS)/PostgreSQL (Self-Hosted VPS)-js`
+- `next` v16
+- `react` v19
+- `tailwindcss` v4
+
+
+## ⚠️ Risks
+- Kegagalan koneksi database saat lonjakan trafik -> Mitigasi: Connection Pooling & Caching.
+
+
+## 🧪 Edge Cases
+- Sesi pengguna kadaluarsa di tengah transaksi -> Redirect otomatis ke login dengan restore state.
+
+
+## 📋 Validation Rules
+- Format input wajib disanitasi dari potensi XSS & SQL Injection.
+
+
+## 🛠️ Technical Notes
+- Implementasi wajib mengikuti konvensi kode di [`21-folder-structure.md`](./21-folder-structure.md).
+
+
+## 🚀 Future Improvements
+- Integrasi analitik real-time dan rekomendasi berbasis AI.
+
 
 ## ✅ Checklist
 
