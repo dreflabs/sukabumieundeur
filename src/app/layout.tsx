@@ -51,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${outfit.variable} ${inter.variable}`}>
+    <html lang="id" className={`dark ${outfit.variable} ${inter.variable}`}>
       <body className="antialiased min-h-screen bg-black text-gray-100 flex flex-col font-sans selection:bg-brand selection:text-black">
         <CustomCursor />
         <SmoothScroll>

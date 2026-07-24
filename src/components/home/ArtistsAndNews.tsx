@@ -34,45 +34,38 @@ export default function ArtistsAndNews({ newsItems }: ArtistsAndNewsProps) {
           <div className="lg:col-span-7 flex flex-col">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="font-inter font-bold text-brand text-[11px] tracking-[0.2em] uppercase mb-2">
+                <p className="font-inter font-bold text-brand text-xs tracking-[0.2em] uppercase mb-2">
                   Featured Artists
                 </p>
                 <h2 className="font-outfit font-black text-4xl md:text-5xl uppercase text-white">
-                  THE VOICES OF <br /> SUKABUMI
+                  THE SOUNDMAKERS
                 </h2>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:border-brand hover:text-brand transition-colors">
-                  <ChevronLeft size={18} />
-                </button>
-                <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:border-brand hover:text-brand transition-colors">
-                  <ChevronRight size={18} />
-                </button>
               </div>
             </div>
 
-            <div className="flex justify-between items-start gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {artists.map((artist, i) => (
-                <motion.div 
-                  key={artist.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="flex flex-col items-center gap-4 group cursor-pointer w-full"
-                >
-                  <div className="relative w-full aspect-[3/4] rounded-none overflow-hidden border border-surface-3 group-hover:border-brand transition-colors">
-                    <Image 
-                      src={artist.image}
-                      alt={artist.name}
-                      fill
-                      className="object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 scale-100 group-hover:scale-110"
-                    />
-                  </div>
-                  <h3 className="font-outfit font-bold text-center text-sm md:text-base text-gray-300 uppercase group-hover:text-brand transition-colors">
-                    {artist.name}
-                  </h3>
-                </motion.div>
+                <Link href="/artists" key={artist.id} className="block group focus:outline-none focus:ring-2 focus:ring-brand">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    className="flex flex-col items-center gap-4 w-full"
+                  >
+                    <div className="relative w-full aspect-[3/4] rounded-none overflow-hidden border border-surface-3 group-hover:border-brand transition-colors">
+                      <Image 
+                        src={artist.image}
+                        alt={artist.name}
+                        fill
+                        className="object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 scale-100 group-hover:scale-110"
+                      />
+                    </div>
+                    <h3 className="font-outfit font-bold text-center text-sm md:text-base text-gray-300 uppercase group-hover:text-brand transition-colors">
+                      {artist.name}
+                    </h3>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </div>
@@ -84,7 +77,7 @@ export default function ArtistsAndNews({ newsItems }: ArtistsAndNewsProps) {
           <div className="lg:col-span-4 flex flex-col">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="font-inter font-bold text-brand text-[11px] tracking-[0.2em] uppercase mb-2">
+                <p className="font-inter font-bold text-brand text-xs tracking-[0.2em] uppercase mb-2">
                   Latest News
                 </p>
                 <h2 className="font-outfit font-black text-4xl md:text-5xl uppercase text-white">
@@ -93,7 +86,7 @@ export default function ArtistsAndNews({ newsItems }: ArtistsAndNewsProps) {
               </div>
               <Link href="/news" className="mb-2 font-inter font-bold text-brand text-xs tracking-[0.2em] uppercase hover:text-white transition-colors flex items-center gap-2">
                 VIEW ALL NEWS 
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
