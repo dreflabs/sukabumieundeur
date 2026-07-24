@@ -1,18 +1,24 @@
 import { query } from '@/lib/db';
 
-export const revalidate = 3600; // Cache for 1 hour
+// Force dynamic: never pre-render at build time — DB is not available during Docker build
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const baseUrl = 'https://eundeur.com'; // Change to actual production URL later
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sukabumieundeurindonesia.com';
 
-  // Fetch latest 50 published articles for the RSS feed
-  const rows = await query(`
-    SELECT n.*, p.full_name as author_name 
-    FROM public.news_articles n
-    LEFT JOIN public.profiles p ON n.author_id = p.id
-    WHERE n.status = 'PUBLISHED'
-    ORDER BY n.published_at DESC LIMIT 50
-  `);
+  let rows: any[] = [];
+  try {
+    // Fetch latest 50 published articles for the RSS feed
+    rows = await query(`
+      SELECT n.*, p.full_name as author_name 
+      FROM public.news_articles n
+      LEFT JOIN public.profiles p ON n.author_id = p.id
+      WHERE n.status = 'PUBLISHED'
+      ORDER BY n.published_at DESC LIMIT 50
+    `);
+  } catch {
+    // DB not reachable — return empty feed
+  }
 
   const itemsXml = rows.map((article: any) => {
     return `

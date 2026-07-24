@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { query } from '@/lib/db';
 import NewsClient from './NewsClient';
 import { Metadata } from 'next';

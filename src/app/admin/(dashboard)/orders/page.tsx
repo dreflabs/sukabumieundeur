@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import AdminOrdersClient from '@/components/admin/AdminOrdersClient';
 

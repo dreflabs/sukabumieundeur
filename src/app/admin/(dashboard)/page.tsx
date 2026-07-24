@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { DollarSign, Ticket, ShoppingBag, Users, Cpu, ShieldCheck, Activity, ArrowUpRight, Newspaper, Building2 } from 'lucide-react';
 import { query } from '@/lib/db';

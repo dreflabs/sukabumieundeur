@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
     // Type errors are caught in dev — don't block production builds
     ignoreBuildErrors: true,
   },
+  // During Docker build there is no DB — make all pages dynamic by default
+  // so they never try to pre-render with DB calls at build time.
+  // Individual pages can still opt into static generation explicitly.
+  experimental: {
+    isrFlushToDisk: false,
+  },
   images: {
     remotePatterns: [
       {
