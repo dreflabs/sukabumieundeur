@@ -1,0 +1,33 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/sukabumi-eundeur
+            # Ambil update terbaru dari GitHub
+            git pull origin main
+            
+            # Build dan jalankan ulang docker di background
+            docker compose -f docker-compose.production.yml --env-file .env.production build --no-cache
+            docker compose -f docker-compose.production.yml --env-file .env.production up -d
+            
+            # Tampilkan status layanan yang berjalan
+            docker compose -f docker-compose.production.yml ps
