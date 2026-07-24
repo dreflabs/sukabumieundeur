@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. NEXT.JS APPLICATION
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sukabumi-eundeur-web:latest
+    container_name: sukabumi-eundeur-web
+    restart: always
+    ports:
+      - "127.0.0.1:3009:3000"
+    env_file:
+      - .env.production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ----------------------------------------------------------------------------
+  # 2. PRIMARY DATABASE ENGINE (POSTGRESQL 16 SELF-HOSTED)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: sukabumi_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sukabumi_eundeur_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password is required}
+    ports:
+      - "127.0.0.1:5455:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres_admin} -d ${POSTGRES_DB:-sukabumi_eundeur_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ----------------------------------------------------------------------------
+  # 3. IN-MEMORY CACHE & TICKET WAR LOCK MANAGER (REDIS 7)
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: sukabumi_redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:?Redis password is required}
+    ports:
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: sukabumi_postgres_data
+  redis_data:
+    name: sukabumi_redis_data
