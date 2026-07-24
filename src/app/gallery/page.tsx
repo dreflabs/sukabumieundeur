@@ -1,74 +1,38 @@
-'use client';
+import React from 'react';
+import { Flame } from 'lucide-react';
+import GalleryClient from '@/components/ui/GalleryClient';
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Image as ImageIcon, ArrowLeft, Flame } from 'lucide-react';
+async function getGallery() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/v1/gallery`, { cache: 'no-store' });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.success ? data.data : [];
+}
 
-export default function GalleryPage() {
-  const [gallery, setGallery] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    fetch('/api/v1/gallery')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) setGallery(data.data);
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
+export default async function GalleryPage() {
+  const gallery = await getGallery();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-gray-100 flex flex-col font-sans">
-      <header className="sticky top-0 z-40 bg-[#0a0a0c]/90 backdrop-blur-md border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Kembali ke Home
-        </Link>
-        <div className="flex items-center gap-2 text-xs font-mono text-red-500">
-          <ImageIcon className="w-4 h-4" /> Media Gallery Portal
-        </div>
-      </header>
+    <div className="w-full flex flex-col font-sans">
+      {/* Hero Header */}
+      <section className="relative py-24 px-6 border-b border-zinc-800/80 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/40 via-black to-black overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20"></div>
 
-      <section className="py-12 px-6 border-b border-zinc-800 bg-zinc-950/60 text-center">
-        <div className="max-w-4xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/30 bg-red-950/40 text-red-400 text-xs font-mono tracking-widest uppercase">
-            <Flame className="w-3.5 h-3.5 text-red-500" /> High-Resolution Photo & Video Archive
+        <div className="relative z-10 max-w-6xl mx-auto space-y-6 fade-in-up text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/30 bg-red-950/40 backdrop-blur-md text-red-400 text-xs font-mono tracking-widest uppercase shadow-lg">
+            <Flame className="w-3.5 h-3.5 text-red-500" /> High-Resolution Photo &amp; Video Archive
           </div>
-          <h1 className="text-4xl md:text-5xl font-black uppercase text-white tracking-tight">
-            GALERI MEDIA <span className="text-red-500">FESTIVAL</span>
+          <h1 className="text-5xl md:text-7xl font-black uppercase text-white tracking-tighter font-outfit leading-none drop-shadow-xl">
+            GALERI <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-800">MEDIA</span>
           </h1>
-          <p className="text-zinc-400 text-xs md:text-sm max-w-xl mx-auto font-mono">
-            Dokumentasi Visual Resolusi Tinggi Rangkaian Acara Sukabumi Eundeur.
+          <p className="text-zinc-400 text-sm max-w-xl mx-auto font-mono leading-relaxed">
+            Dokumentasi Visual Resolusi Tinggi Rangkaian Acara Sukabumi Eundeur — dari Moshpit hingga Backstage.
           </p>
         </div>
       </section>
 
-      <main className="py-12 px-6 max-w-6xl mx-auto w-full flex-grow">
-        {loading ? (
-          <div className="py-20 text-center space-y-3 font-mono text-xs text-zinc-500">
-            <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p>Memuat galeri media...</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {gallery.map((g) => (
-              <div key={g.id} className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden group hover:border-red-600/70 transition-all">
-                <div className="aspect-square bg-zinc-950 overflow-hidden relative">
-                  <img src={g.image_url} alt={g.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  <span className="absolute top-3 left-3 bg-zinc-950/80 border border-zinc-800 px-2.5 py-1 rounded text-[10px] font-mono text-red-400 uppercase tracking-widest">
-                    {g.category}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-xs font-bold text-white uppercase line-clamp-1 group-hover:text-red-500 transition-colors">
-                    {g.title}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
+      {/* Client Component for Interactive Filter & Layout */}
+      <GalleryClient initialData={gallery} />
     </div>
   );
 }

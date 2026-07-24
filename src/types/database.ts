@@ -80,3 +80,108 @@ export interface Order {
   created_at: string;
   updated_at: string;
 }
+
+export interface NewsArticle {
+  id: string;
+  slug: string;
+  title: string;
+  published_at: string;
+  cover_image: string | null;
+  status: ArticleStatus;
+}
+
+export interface Artist {
+  id: string;
+  name: string;
+  bio?: string;
+  genre: string;
+  social_links?: any;
+  image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Ticket {
+  id: string;
+  ticket_code: string;
+  order_id: string;
+  user_id: string;
+  ticket_category_id: string;
+  status: TicketStatus;
+  issued_at?: string;
+  checked_in_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventArtist {
+  id: string;
+  event_id: string;
+  artist_id: string;
+  performance_time?: string;
+  stage_name?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ForumTopic {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  author_id: string;
+  is_pinned: boolean;
+  is_locked: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ForumPost {
+  id: string;
+  topic_id: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  category: string;
+  image_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HistoryEvent {
+  id: string;
+  year: string;
+  title: string;
+  date: string;
+  venue: string;
+  attendees: string;
+  headliners: string[];
+  aftermovie_url?: string;
+  cover: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SiteSetting {
+  id: string;
+  key: string;
+  value: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { TicketCategory } from '@/types/database';
-import { Minus, Plus, Ticket, ShieldAlert } from 'lucide-react';
+import { Minus, Plus, Ticket, ShieldAlert, Sparkles } from 'lucide-react';
 
 interface TicketCategoryCardProps {
   category: TicketCategory;
@@ -41,54 +41,55 @@ export default function TicketCategoryCard({
 
   return (
     <div
-      className={`bg-zinc-900/90 border ${
-        category.name.includes('VIP') || category.name.includes('PRESALE')
-          ? 'border-red-600 shadow-[0_0_25px_rgba(220,38,38,0.25)]'
-          : 'border-zinc-800'
-      } rounded-lg p-6 flex flex-col justify-between relative transition-all hover:border-red-600/70`}
+      className={`bg-surface-1 border-2 ${
+        category.name.includes('VIP') || category.name.includes('PRESALE') || category.name.includes('ACCESS')
+          ? 'border-brand shadow-brutal'
+          : 'border-white/10'
+      } rounded-none p-7 flex flex-col justify-between relative shadow-brutal-hover hover:border-brand overflow-hidden group`}
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded bg-zinc-800 text-zinc-400">
+          <span className="text-xs font-inter uppercase tracking-widest px-2.5 py-1 bg-surface-2 text-gray-400 border border-white/10">
             Maks {category.max_per_transaction} Tiket/Tx
           </span>
-          <span className={`text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded font-bold ${
-            isSoldOut ? 'bg-red-950 text-red-400 border border-red-800' : 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+          <span className={`text-xs font-inter uppercase tracking-widest px-2.5 py-1 font-bold flex items-center gap-1.5 ${
+            isSoldOut ? 'bg-surface-2 text-gray-500 border border-white/10' : 'bg-brand/10 text-brand border-brand/30'
           }`}>
+            <span className={`w-1.5 h-1.5 rounded-none ${isSoldOut ? 'bg-gray-500' : 'bg-brand animate-ping'}`}></span>
             {isSoldOut ? 'Habis (Sold Out)' : `Sisa ${category.available_quota} Tiket`}
           </span>
         </div>
 
         <div>
-          <h3 className="text-xl font-black text-white uppercase tracking-tight">{category.name}</h3>
-          <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{category.description}</p>
+          <h3 className="text-2xl font-outfit font-black text-white uppercase tracking-tight">{category.name}</h3>
+          <p className="text-xs font-inter text-gray-400 mt-1 line-clamp-2 leading-relaxed">{category.description}</p>
         </div>
 
-        <div className="text-3xl font-black text-red-500 tracking-tight pt-2">
+        <div className="text-3xl font-outfit font-black text-brand tracking-tight pt-2">
           {formatRupiah(category.price)}
-          <span className="text-xs font-normal text-zinc-500 ml-1">/ tiket</span>
+          <span className="text-xs font-inter text-gray-500 ml-1 uppercase tracking-widest">/ tiket</span>
         </div>
       </div>
 
-      <div className="mt-8 pt-4 border-t border-zinc-800/80 space-y-4">
+      <div className="mt-8 pt-5 border-t border-white/10 space-y-4">
         {!isSoldOut && (
-          <div className="flex items-center justify-between bg-zinc-950 px-3 py-2 rounded border border-zinc-800">
-            <span className="text-xs font-mono text-zinc-400">Jumlah Tiket:</span>
+          <div className="flex items-center justify-between bg-surface-3 px-4 py-2.5 border border-white/5">
+            <span className="text-xs font-inter uppercase tracking-widest text-gray-400">Jumlah:</span>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={decrement}
                 disabled={quantity <= 1 || isHolding}
-                className="w-7 h-7 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 text-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 bg-surface-2 hover:bg-white/10 disabled:opacity-30 text-white flex items-center justify-center transition-colors"
               >
                 <Minus className="w-3.5 h-3.5" />
               </button>
-              <span className="font-mono text-sm font-bold text-white w-4 text-center">{quantity}</span>
+              <span className="font-outfit text-sm font-black text-white w-4 text-center">{quantity}</span>
               <button
                 type="button"
                 onClick={increment}
                 disabled={quantity >= category.max_per_transaction || quantity >= category.available_quota || isHolding}
-                className="w-7 h-7 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 text-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 bg-surface-2 hover:bg-white/10 disabled:opacity-30 text-white flex items-center justify-center transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -100,14 +101,14 @@ export default function TicketCategoryCard({
           type="button"
           onClick={() => onHoldTicket(category, quantity)}
           disabled={isSoldOut || isHolding}
-          className={`w-full py-3.5 text-xs font-bold uppercase tracking-wider rounded flex items-center justify-center gap-2 transition-all ${
+          className={`w-full py-4 text-xs font-inter font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all border-2 ${
             isSoldOut
-              ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-              : 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)]'
+              ? 'bg-surface-2 text-gray-600 border-surface-2 cursor-not-allowed'
+              : 'bg-brand hover:bg-white text-black border-brand shadow-[4px_4px_0_#ccff00] hover:shadow-[4px_4px_0_white]'
           }`}
         >
           <Ticket className="w-4 h-4" />
-          {isHolding ? 'Mengunci Tiket...' : isSoldOut ? 'Sold Out' : `Kunci ${quantity} Tiket (Hold 15-Min)`}
+          {isHolding ? 'MENGUNCI TIKET...' : isSoldOut ? 'SOLD OUT' : `KUNCI ${quantity} TIKET (HOLD 15-MIN)`}
         </button>
       </div>
     </div>

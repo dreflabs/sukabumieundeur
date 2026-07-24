@@ -30,6 +30,7 @@ CREATE TABLE public.profiles (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- ------------------------------------------------------------------------------
 -- 3. EVENTS & FESTIVALS
@@ -48,6 +49,21 @@ CREATE TABLE public.events (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+
+-- ------------------------------------------------------------------------------
+-- 3.5. ARTISTS & LINEUP
+-- ------------------------------------------------------------------------------
+CREATE TABLE public.artists (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(150) NOT NULL,
+    role VARCHAR(100),
+    image_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+ALTER TABLE public.artists ENABLE ROW LEVEL SECURITY;
 
 -- ------------------------------------------------------------------------------
 -- 4. TICKETING SYSTEM
@@ -66,16 +82,18 @@ CREATE TABLE public.ticket_categories (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.ticket_categories ENABLE ROW LEVEL SECURITY;
 
 CREATE TABLE public.ticket_reservations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-    ticket_category_id UUID REFERENCES public.ticket_categories(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE RESTRICT NOT NULL,
+    ticket_category_id UUID REFERENCES public.ticket_categories(id) ON DELETE RESTRICT NOT NULL,
     quantity INT NOT NULL CHECK (quantity > 0),
     expires_at TIMESTAMPTZ NOT NULL,
     status VARCHAR(20) DEFAULT 'HOLD' NOT NULL, -- HOLD, CONVERTED, EXPIRED
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.ticket_reservations ENABLE ROW LEVEL SECURITY;
 
 -- ------------------------------------------------------------------------------
 -- 5. MERCHANDISE E-COMMERCE
@@ -92,6 +110,7 @@ CREATE TABLE public.merch_products (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.merch_products ENABLE ROW LEVEL SECURITY;
 
 CREATE TABLE public.merch_variants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -103,6 +122,7 @@ CREATE TABLE public.merch_variants (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.merch_variants ENABLE ROW LEVEL SECURITY;
 
 -- ------------------------------------------------------------------------------
 -- 6. ORDERS & TRANSACTIONS
@@ -110,15 +130,21 @@ CREATE TABLE public.merch_variants (
 CREATE TABLE public.orders (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     order_number VARCHAR(50) UNIQUE NOT NULL,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE RESTRICT NOT NULL,
     total_amount DECIMAL(12,2) NOT NULL CHECK (total_amount >= 0),
     status order_status DEFAULT 'PENDING'::order_status NOT NULL,
     snap_token TEXT,
     payment_method VARCHAR(50),
     paid_at TIMESTAMPTZ,
+    shipping_address TEXT,
+    shipping_city VARCHAR(100),
+    shipping_postal_code VARCHAR(20),
+    shipping_courier VARCHAR(50),
+    shipping_cost DECIMAL(12,2) DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
 CREATE TABLE public.order_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -130,12 +156,13 @@ CREATE TABLE public.order_items (
     unit_price DECIMAL(12,2) NOT NULL CHECK (unit_price >= 0),
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
 CREATE TABLE public.tickets (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ticket_code VARCHAR(50) UNIQUE NOT NULL,
-    order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    order_id UUID REFERENCES public.orders(id) ON DELETE RESTRICT NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE RESTRICT NOT NULL,
     ticket_category_id UUID REFERENCES public.ticket_categories(id) NOT NULL,
     qr_code_hash TEXT UNIQUE NOT NULL,
     status ticket_status DEFAULT 'ISSUED'::ticket_status NOT NULL,
@@ -143,6 +170,7 @@ CREATE TABLE public.tickets (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.tickets ENABLE ROW LEVEL SECURITY;
 
 -- ------------------------------------------------------------------------------
 -- 7. NEWS & CONTENT SYSTEM
@@ -162,6 +190,7 @@ CREATE TABLE public.news_articles (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.news_articles ENABLE ROW LEVEL SECURITY;
 
 -- ------------------------------------------------------------------------------
 -- 8. COMMUNITY FORUM
@@ -177,6 +206,7 @@ CREATE TABLE public.forum_topics (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.forum_topics ENABLE ROW LEVEL SECURITY;
 
 CREATE TABLE public.forum_posts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -186,6 +216,7 @@ CREATE TABLE public.forum_posts (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+ALTER TABLE public.forum_posts ENABLE ROW LEVEL SECURITY;
 
 -- Trigger for auto updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -201,3 +232,31 @@ CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON public.events FOR EACH 
 CREATE TRIGGER update_ticket_categories_updated_at BEFORE UPDATE ON public.ticket_categories FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 CREATE TRIGGER update_merch_products_updated_at BEFORE UPDATE ON public.merch_products FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE TRIGGER update_artists_updated_at BEFORE UPDATE ON public.artists FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+-- ------------------------------------------------------------------------------
+-- 9. PERFORMANCE INDEXES (B-TREE)
+-- ------------------------------------------------------------------------------
+CREATE INDEX idx_tickets_user_id ON public.tickets(user_id);
+CREATE INDEX idx_tickets_order_id ON public.tickets(order_id);
+CREATE INDEX idx_tickets_category_id ON public.tickets(ticket_category_id);
+CREATE INDEX idx_ticket_reservations_user_id ON public.ticket_reservations(user_id);
+CREATE INDEX idx_ticket_reservations_category_id ON public.ticket_reservations(ticket_category_id);
+
+CREATE INDEX idx_orders_user_id ON public.orders(user_id);
+CREATE INDEX idx_order_items_order_id ON public.order_items(order_id);
+CREATE INDEX idx_order_items_ticket_category_id ON public.order_items(ticket_category_id);
+CREATE INDEX idx_order_items_merch_variant_id ON public.order_items(merch_variant_id);
+
+CREATE INDEX idx_merch_variants_product_id ON public.merch_variants(product_id);
+CREATE INDEX idx_ticket_categories_event_id ON public.ticket_categories(event_id);
+
+CREATE INDEX idx_forum_topics_author_id ON public.forum_topics(author_id);
+CREATE INDEX idx_forum_posts_topic_id ON public.forum_posts(topic_id);
+CREATE INDEX idx_forum_posts_author_id ON public.forum_posts(author_id);
+
+CREATE INDEX idx_news_articles_author_id ON public.news_articles(author_id);
+
+-- Partial Indexes for fast filtering
+CREATE INDEX idx_events_is_active ON public.events(is_active) WHERE is_active = TRUE;
+CREATE INDEX idx_orders_status ON public.orders(status) WHERE status IN ('PENDING', 'PAID');

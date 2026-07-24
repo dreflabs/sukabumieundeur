@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { Profile } from '@/types/database';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,42 +10,50 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password || !username || !fullName) {
       return NextResponse.json(
-        { success: false, error: 'Email, password, username, dan nama lengkap wajib diisi.' },
+        { success: false, error: 'Semua kolom wajib diisi.' },
         { status: 400 }
       );
     }
 
+    // Password strength validation
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return NextResponse.json(
+        { success: false, error: 'Pendaftaran gagal, periksa kembali data Anda.' },
+        { status: 400 }
+      );
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanUsername = username.toLowerCase().trim();
+
     // Check if email or username already exists
     const existingUser = await query<Profile>(
-      `SELECT * FROM profiles WHERE email = $1 OR username = $2 LIMIT 1`,
-      [email.toLowerCase(), username.toLowerCase()]
+      `SELECT id FROM profiles WHERE email = $1 OR username = $2 LIMIT 1`,
+      [cleanEmail, cleanUsername]
     );
 
     if (existingUser.length > 0) {
+      // Prevent enumeration by returning a generic error instead of "already exists"
       return NextResponse.json(
-        { success: false, error: 'Email atau username sudah terdaftar.' },
-        { status: 409 }
+        { success: false, error: 'Pendaftaran gagal, periksa kembali data Anda.' },
+        { status: 400 }
       );
     }
+
+    // Hash the password securely
+    const saltRounds = 10;
+    const passwordHash = bcrypt.hashSync(password, saltRounds);
 
     // Insert user profile into database
     const newUser = await query<Profile>(
       `INSERT INTO profiles (email, password_hash, username, full_name, phone, role)
        VALUES ($1, $2, $3, $4, $5, 'MEMBER')
        RETURNING id, email, username, full_name, avatar_url, phone, role, created_at, updated_at`,
-      [email.toLowerCase(), password, username.toLowerCase(), fullName, phone || null]
+      [cleanEmail, passwordHash, cleanUsername, fullName, phone || null]
     );
 
-    const userProfile = newUser[0] || {
-      id: `usr-${Date.now()}`,
-      email: email,
-      username: username,
-      full_name: fullName,
-      phone: phone || '',
-      role: 'MEMBER',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    const userProfile = newUser[0];
 
     return NextResponse.json({
       success: true,

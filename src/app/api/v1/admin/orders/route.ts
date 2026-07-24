@@ -1,29 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
+import { requireAdminRole } from '@/lib/requireAdmin';
 
 export async function GET(request: NextRequest) {
   try {
-    const orders = [
-      {
-        id: 'ord-1001',
-        order_number: 'ORD-20260815-001',
-        user_name: 'Budi Metalhead',
-        item_summary: 'MOSHPIT VIP PASS (2 Tiket)',
-        total_amount: 300000,
-        status: 'PAID',
-        payment_method: 'Midtrans QRIS',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 'ord-1002',
-        order_number: 'ORD-20260815-002',
-        user_name: 'Rudi Underground',
-        item_summary: 'Official T-Shirt 2026 (Size L)',
-        total_amount: 185000,
-        status: 'PAID',
-        payment_method: 'BCA Virtual Account',
-        created_at: new Date().toISOString()
-      }
-    ];
+    const auth = await requireAdminRole(['SUPER_ADMIN', 'ORGANISER']);
+    if (!auth.success) return auth.response;
+
+    const orders = await query(`
+      SELECT 
+        o.id,
+        o.order_number,
+        p.full_name as user_name,
+        o.total_amount,
+        o.status,
+        o.created_at
+      FROM orders o
+      LEFT JOIN profiles p ON o.user_id = p.id
+      ORDER BY o.created_at DESC
+      LIMIT 50
+    `);
 
     return NextResponse.json({ success: true, data: orders });
   } catch (error: any) {

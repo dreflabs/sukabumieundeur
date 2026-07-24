@@ -10,30 +10,7 @@ export async function GET(request: NextRequest) {
     let data = topics;
 
     if (data.length === 0) {
-      data = [
-        {
-          id: 'topic-1',
-          slug: 'persiapan-moshpit-safety-guide-sukabumi-eundeur-fest-2026',
-          title: 'Persiapan & Moshpit Safety Guide Sukabumi Eundeur Fest 2026',
-          author_name: 'Metalhead_Skbm',
-          category: 'Tips & Etika',
-          is_pinned: true,
-          is_locked: false,
-          posts_count: 34,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 'topic-2',
-          slug: 'rekomendasi-band-local-heroes-sukabumi-yang-wajib-tonton',
-          title: 'Rekomendasi Band Local Heroes Sukabumi yang Wajib Tonton!',
-          author_name: 'Underground_Addict',
-          category: 'Diskusi Musik',
-          is_pinned: false,
-          is_locked: false,
-          posts_count: 19,
-          created_at: new Date().toISOString()
-        }
-      ];
+      data = [];
     }
 
     return NextResponse.json({ success: true, data: data });

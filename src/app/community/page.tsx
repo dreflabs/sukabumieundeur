@@ -1,96 +1,156 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Users, ArrowLeft, MessageSquare, Pin, PlusCircle, Flame } from 'lucide-react';
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Users, LayoutGrid, Ticket, Search, ArrowRight, Disc3, Mic2, Guitar } from "lucide-react"; 
+
+const communityStats = [
+  { id: 1, value: "12K+", label: "MEMBERS" },
+  { id: 2, value: "120+", label: "COMMUNITIES" },
+  { id: 3, value: "350+", label: "EVENTS HOSTED" },
+  { id: 4, value: "50K+", label: "FOLLOWERS" },
+];
+
+const subCommunities = [
+  { id: 1, name: "METALHEADS SUKABUMI", icon: <Guitar className="text-brand w-8 h-8 mb-4" /> },
+  { id: 2, name: "HIP-HOP MOVEMENT", icon: <Mic2 className="text-brand w-8 h-8 mb-4" /> },
+  { id: 3, name: "ELECTRONIC SOUND", icon: <Disc3 className="text-brand w-8 h-8 mb-4" /> },
+  { id: 4, name: "LOCAL CREATIVES", icon: <LayoutGrid className="text-brand w-8 h-8 mb-4" /> },
+];
 
 export default function CommunityPage() {
-  const [topics, setTopics] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    fetch('/api/v1/community/topics')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) setTopics(data.data);
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
-
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-gray-100 flex flex-col font-sans">
-      <header className="sticky top-0 z-40 bg-[#0a0a0c]/90 backdrop-blur-md border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Kembali ke Home
-        </Link>
-        <div className="flex items-center gap-2 text-xs font-mono text-red-500">
-          <Users className="w-4 h-4" /> Community & Forum Hub
+    <div className="w-full bg-background min-h-screen flex flex-col">
+      
+      {/* Page Hero */}
+      <section className="relative w-full h-[50vh] min-h-[400px] flex flex-col justify-end pb-16 pt-32 overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2940&auto=format&fit=crop"
+            alt="Community Background"
+            fill
+            className="object-cover opacity-30 grayscale"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         </div>
-      </header>
 
-      <section className="py-12 px-6 border-b border-zinc-800 bg-zinc-950/60">
-        <div className="max-w-6xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/30 bg-red-950/40 text-red-400 text-xs font-mono tracking-widest uppercase">
-            <Flame className="w-3.5 h-3.5 text-red-500" /> Forum Diskusi Komunitas
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black uppercase text-white tracking-tight">
-            FORUM DISKUSI <span className="text-red-500">SUKABUMI UNDERGROUND</span>
-          </h1>
-          <p className="text-zinc-400 text-xs md:text-sm max-w-xl">
-            Ruang Interaksi Komunitas Musik Heavy Metal, Band Reviews, & Sharing Info Skena Lokal.
-          </p>
+        <div className="container relative z-10 mx-auto px-6 md:px-12 lg:px-24">
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            className="font-inter font-bold text-brand text-xs tracking-[0.2em] uppercase mb-4"
+          >
+            The Movement
+          </motion.p>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="font-outfit font-black text-5xl md:text-8xl lg:text-9xl uppercase tracking-tighter text-white leading-none"
+          >
+            COMMUNITY
+          </motion.h1>
         </div>
       </section>
 
-      <main className="py-12 px-6 max-w-6xl mx-auto w-full flex-grow space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold uppercase text-white tracking-wide">Topik Diskusi Terkini</h2>
-          <button
-            onClick={() => alert('Fitur buat topik baru tersedia untuk member terdaftar.')}
-            className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2"
-          >
-            <PlusCircle className="w-4 h-4" /> Buat Topik Baru
-          </button>
+      {/* Main Content */}
+      <section className="flex-1 container mx-auto px-6 md:px-12 lg:px-24 py-24">
+        
+        {/* Intro & Form */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-32">
+          
+          <div className="flex flex-col">
+            <h2 className="font-outfit font-black text-3xl md:text-5xl uppercase text-white mb-6">
+              TOGETHER <br /> WE GROW
+            </h2>
+            <p className="font-inter text-gray-400 text-sm md:text-base mb-8 leading-relaxed">
+              Sukabumi Eundeur bukan sekadar festival musik, ini adalah ekosistem. Kami mewadahi berbagai sub-kultur dari metal, punk, hip-hop, hingga pegiat seni visual untuk bersatu, berkolaborasi, dan menggetarkan tanah air.
+            </p>
+            
+            <div className="grid grid-cols-2 gap-8 mb-12">
+              {communityStats.map((stat, i) => (
+                <div key={stat.id} className="flex flex-col">
+                  <span className="font-outfit font-black text-4xl text-brand uppercase tracking-tighter mb-1">
+                    {stat.value}
+                  </span>
+                  <span className="font-inter font-bold text-gray-400 text-xs uppercase tracking-widest">
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col bg-surface-2 p-8 md:p-12 border border-white/5 relative overflow-hidden group">
+            {/* Decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand opacity-5 blur-[100px] rounded-full pointer-events-none" />
+            
+            <h3 className="font-outfit font-black text-2xl uppercase text-white mb-2">JOIN THE ECOSYSTEM</h3>
+            <p className="font-inter text-gray-400 text-sm mb-8">
+              Jadilah bagian dari pergerakan. Dapatkan akses ke forum eksklusif, tiket presale, dan diskusi kolaborasi.
+            </p>
+            
+            <form className="flex flex-col gap-4">
+              <input 
+                type="text" 
+                placeholder="FULL NAME"
+                className="w-full bg-surface-1 border border-white/10 text-white text-xs px-4 py-4 outline-none focus:border-brand transition-colors uppercase tracking-widest font-inter"
+              />
+              <input 
+                type="email" 
+                placeholder="EMAIL ADDRESS"
+                className="w-full bg-surface-1 border border-white/10 text-white text-xs px-4 py-4 outline-none focus:border-brand transition-colors uppercase tracking-widest font-inter"
+              />
+              <select className="w-full bg-surface-1 border border-white/10 text-gray-400 text-xs px-4 py-4 outline-none focus:border-brand transition-colors uppercase tracking-widest font-inter appearance-none">
+                <option value="">SELECT YOUR INTEREST</option>
+                <option value="musician">MUSICIAN / BAND</option>
+                <option value="visual_artist">VISUAL ARTIST</option>
+                <option value="promoter">PROMOTER / EVENT</option>
+                <option value="enthusiast">MUSIC ENTHUSIAST</option>
+              </select>
+              
+              <button 
+                type="button" 
+                disabled
+                className="mt-4 flex items-center justify-between w-full px-6 py-4 bg-brand hover:bg-white disabled:bg-surface-2 disabled:text-gray-500 disabled:border-transparent text-black font-inter font-bold text-xs uppercase tracking-widest transition-colors cursor-not-allowed"
+              >
+                REGISTRATION OPENING SOON
+                <ArrowRight size={16} />
+              </button>
+            </form>
+          </div>
+
         </div>
 
-        {loading ? (
-          <div className="py-20 text-center space-y-3 font-mono text-xs text-zinc-500">
-            <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p>Memuat forum diskusi...</p>
+        {/* Sub-Communities */}
+        <div>
+          <div className="flex items-center gap-4 mb-12">
+            <h2 className="font-outfit font-black text-3xl md:text-4xl uppercase text-white">SUB-COMMUNITIES</h2>
+            <div className="h-[1px] flex-1 bg-white/10" />
           </div>
-        ) : (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg divide-y divide-zinc-800">
-            {topics.map((t) => (
-              <div key={t.id} className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-zinc-800/40 transition-colors">
-                <div className="space-y-1.5 flex-grow">
-                  <div className="flex items-center gap-2">
-                    {t.is_pinned && (
-                      <span className="bg-red-950 border border-red-800 text-red-400 text-[10px] font-mono font-bold px-2 py-0.5 rounded flex items-center gap-1 uppercase">
-                        <Pin className="w-3 h-3 text-red-500" /> Pinned
-                      </span>
-                    )}
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800">
-                      {t.category}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-white uppercase hover:text-red-500 transition-colors cursor-pointer">
-                    {t.title}
-                  </h3>
-                  <div className="text-[11px] font-mono text-zinc-500">
-                    Oleh <span className="text-zinc-300">@{t.author_name}</span> · {new Date(t.created_at).toLocaleDateString('id-ID')}
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-950 px-3.5 py-1.5 rounded border border-zinc-800 shrink-0">
-                  <MessageSquare className="w-4 h-4 text-red-500" />
-                  <span>{t.posts_count || 12} Balasan</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {subCommunities.map((sub, i) => (
+              <motion.div 
+                key={sub.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="flex flex-col items-center justify-center p-8 bg-surface-2 border border-white/5 hover:border-brand/50 transition-colors cursor-pointer text-center group"
+              >
+                <div className="transform group-hover:scale-110 transition-transform duration-300">
+                  {sub.icon}
                 </div>
-              </div>
+                <h3 className="font-outfit font-bold text-gray-300 group-hover:text-white uppercase text-lg transition-colors">
+                  {sub.name}
+                </h3>
+              </motion.div>
             ))}
           </div>
-        )}
-      </main>
+        </div>
+
+      </section>
     </div>
   );
 }

@@ -11,9 +11,9 @@ services:
     environment:
       POSTGRES_DB: sukabumi_eundeur_db
       POSTGRES_USER: postgres_admin
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_secret_key_2026}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password is required}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5455:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/migrations:/docker-entrypoint-initdb.d
@@ -25,9 +25,9 @@ services:
     image: redis:7-alpine
     container_name: sukabumi_redis
     restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_secret_key_2026}
+    command: redis-server --requirepass ${REDIS_PASSWORD:?Redis password is required}
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6380:6379"
     volumes:
       - redis_data:/data
 
