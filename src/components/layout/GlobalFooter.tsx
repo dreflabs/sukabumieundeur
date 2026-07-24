@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function GlobalFooter() {
   return (
@@ -11,17 +13,7 @@ export default function GlobalFooter() {
           {/* Logo & Description (Left Column - span 4) */}
           <div className="lg:col-span-4 flex flex-col items-start">
             <Link href="/" className="flex items-center gap-3 mb-6">
-              <div className="text-brand">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 8H32V12H12V8ZM8 16H28V20H8V16ZM12 24H32V28H12V24ZM8 32H28V36H8V32Z" fill="currentColor"/>
-                  <rect x="2" y="8" width="4" height="28" fill="currentColor"/>
-                </svg>
-              </div>
-              <div className="flex flex-col items-start leading-[1.1]">
-                <span className="font-outfit font-black text-[15px] uppercase tracking-wide text-white">SUKABUMI</span>
-                <span className="font-outfit font-black text-[15px] uppercase tracking-wide text-white">EUNDEUR</span>
-                <span className="font-outfit font-black text-[15px] uppercase tracking-wide text-white">INDONESIA</span>
-              </div>
+              <BrandLogo size="lg" className="filter grayscale hover:grayscale-0 transition-all duration-300" />
             </Link>
             <p className="font-inter text-gray-400 text-sm max-w-sm mb-8 leading-relaxed">
               Ekosistem musik, budaya, dan kreativitas yang menghubungkan komunitas dan menggerakkan perubahan.

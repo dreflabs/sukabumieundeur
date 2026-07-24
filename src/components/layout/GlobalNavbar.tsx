@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { Search, User } from "lucide-react"; // Assume lucide-react is installed, if not we can use SVG
 
 const navLinks = [
@@ -36,24 +38,7 @@ export default function GlobalNavbar() {
       <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="relative z-10 flex items-center gap-3">
-          {/* Logo Icon (Green stylized S/E block) */}
-          <div className="text-brand">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" clipRule="evenodd" d="M12 8H32V12H12V8ZM8 16H28V20H8V16ZM12 24H32V28H12V24ZM8 32H28V36H8V32Z" fill="currentColor"/>
-              <rect x="2" y="8" width="4" height="28" fill="currentColor"/>
-            </svg>
-          </div>
-          <div className="flex flex-col items-start leading-[1.1]">
-            <span className="font-outfit font-black text-[15px] uppercase tracking-wide text-white">
-              SUKABUMI
-            </span>
-            <span className="font-outfit font-black text-[15px] uppercase tracking-wide text-white">
-              EUNDEUR
-            </span>
-            <span className="font-outfit font-black text-[15px] uppercase tracking-wide text-white">
-              INDONESIA
-            </span>
-          </div>
+          <BrandLogo size="lg" />
         </Link>
 
         {/* Desktop Nav */}
