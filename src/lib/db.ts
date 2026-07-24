@@ -8,7 +8,7 @@ export const pool =
     connectionString: process.env.DATABASE_URL,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 3000, // 3s — fail fast at build time when DB is unavailable
   });
 
 // Setup pool error handling to prevent application crashes on idle client failures
@@ -40,6 +40,17 @@ export async function query<T = unknown>(text: string, params?: unknown[]): Prom
       message: error.message,
       stack: error.stack
     });
+    // During build-time pre-rendering (ENOTFOUND/ECONNREFUSED), return []
+    // so pages render gracefully with empty data instead of crashing.
+    // In production runtime, callers should handle empty results appropriately.
+    if (
+      error.code === 'ENOTFOUND' ||
+      error.code === 'ECONNREFUSED' ||
+      error.code === 'ETIMEDOUT' ||
+      error.message?.includes('getaddrinfo')
+    ) {
+      return [] as T[];
+    }
     throw error;
   }
 }

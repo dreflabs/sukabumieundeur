@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Calendar, MapPin, Video, Users, Flame, BookOpen } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';

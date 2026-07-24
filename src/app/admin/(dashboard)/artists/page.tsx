@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { query } from "@/lib/db";
 import ArtistsAdminClient from "./ArtistsAdminClient";
 import { requireAdminRole } from "@/lib/requireAdmin";

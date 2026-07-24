@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Flame, Calendar, MapPin } from 'lucide-react';
 import TicketClient from '@/components/tickets/TicketClient';

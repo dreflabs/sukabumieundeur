@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Flame } from 'lucide-react';
 import GalleryClient from '@/components/ui/GalleryClient';
