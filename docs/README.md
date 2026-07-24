@@ -98,7 +98,7 @@ Sukabumi Eundeur mengadaptasi pola-pola tersebut dengan konteks lokal, budaya, d
 | Backend as a Service | **PostgreSQL (Self-Hosted VPS)** (Auth, Database, Storage, Realtime) |
 | Database             | **PostgreSQL**                                   |
 | File Storage         | **MinIO / Local VPS Storage**                             |
-| Version Control      | **GitHub**                                       |
+| Version Control      | **GitHub** (`git@github.com:dreflabs/sukabumieundeur.git`) |
 | Hosting/Deployment   | **VPS (Self-managed)**                           |
 
 > **Catatan**
