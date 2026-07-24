@@ -21,6 +21,8 @@ COPY . .
 # Set build-time env vars (non-secret)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+# Skip ESLint and type check during Docker build (caught in CI separately)
+ENV NEXT_DISABLE_ESLINT_CHECK=1
 
 RUN npm run build
 
